@@ -3,7 +3,7 @@ import App from '../App';
 import Login from '../Components/Login';
 import Register from '../Components/Register';
 import AppLayout from '../Components/AppLayout';
-import RequireAuth from '../Components/RequireAuth';
+import RequireAuth from '../Auth/RequireAuth';
 
 function AppRoutes() {
     const isAuthenticated = false;
