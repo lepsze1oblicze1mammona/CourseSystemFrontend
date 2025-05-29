@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,13 +9,14 @@ const Register: React.FC = () => {
     role: "",
     imie: "",
     nazwisko: "",
+    klasa: ""
   });
-  const [confirmPassword, setConfirmPassword] = useState(""); // osobny stan!
-  const [error, setError] = useState<string | null>(null);  //czy udalo się zarejestrowac
-  const [success, setSuccess] = useState<string | null>(null); //czy udalo się zarejestrowac
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "confirmPassword") {
       setConfirmPassword(value);
@@ -31,22 +33,26 @@ const Register: React.FC = () => {
     setError(null);
     setSuccess(null);
 
-    // Sprawdzamy, czy hasła się zgadzają
     if (formData.password !== confirmPassword) {
       setError("Hasła nie są zgodne.");
       return;
     }
 
-    // Przygotowanie danych do wysłania
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-      role: formData.role,
-      imie: formData.imie,
-      nazwisko: formData.nazwisko
-    };
+    try {
+      const response = await axios.post("/register", formData, {
+        headers: { "Content-Type": "application/json","X-Requested-With": "XMLHttpRequest" }
+        
+      });
 
-    //tutaj wysyłanie do bazy i przypisanie do error i success odpowiednich wartości
+      if (response.status === 200 && response.data.output) {
+        setSuccess(response.data.output);
+        navigate("/login");
+      } else {
+        setError(response.data.error || "Błąd rejestracji.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Wystąpił błąd podczas rejestracji.");
+    }
   };
 
   return (
@@ -57,62 +63,39 @@ const Register: React.FC = () => {
       <form onSubmit={handleSubmit} className="register-form">
         <div className="form-group">
           <label htmlFor="imie">Imię</label>
-          <input
-            type="text"
-            id="imie"
-            name="imie"
-            value={formData.imie}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" id="imie" name="imie" value={formData.imie} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label htmlFor="nazwisko">Nazwisko</label>
-          <input
-            type="text"
-            id="nazwisko"
-            name="nazwisko"
-            value={formData.nazwisko}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" id="nazwisko" name="nazwisko" value={formData.nazwisko} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label htmlFor="password">Hasło</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label htmlFor="confirmPassword">Potwierdź hasło</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={handleChange} required />
         </div>
-        <button type="submit" className="btn-submit">
-          Zarejestruj się
-        </button>
+        <div className="form-group">
+          <label htmlFor="role">Rola</label>
+          <select id="role" name="role" value={formData.role} onChange={handleChange} required>
+            <option value="">Wybierz rolę</option>
+            <option value="student">Uczeń</option>
+            <option value="teacher">Nauczyciel</option>
+          </select>
+        </div>
+        {formData.role === "student" && (
+          <div className="form-group">
+            <label htmlFor="klasa">Klasa</label>
+            <input type="text" id="klasa" name="klasa" value={formData.klasa} onChange={handleChange} required />
+          </div>
+        )}
+        <button type="submit" className="btn-submit">Zarejestruj się</button>
       </form>
     </div>
   );
