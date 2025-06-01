@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import do przekierowania
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ const Login: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const navigate = useNavigate(); // Hook do przekierowania
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,16 +20,42 @@ const Login: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    //tutaj wysyłanie do bazy i przypisanie do error i success odpowiednich wartości
-  };
+  e.preventDefault();
+  setError(null);
+  setSuccess(null);
+
+  try {
+    const response = await axios.post("/login", formData, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const message = response.data.message?.toLowerCase();
+
+    if (
+      message?.includes("zalogowano") &&
+      response.data.token
+    ) {
+      setSuccess(response.data.message);
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard"); 
+    } else {
+      setError(response.data.message || "Błąd logowania.");
+    }
+  } catch (err: any) {
+    setError(err.response?.data?.error || "Wystąpił błąd podczas logowania.");
+  }
+};
+
 
   return (
     <div className="login-container">
       <h2 className="login-title">Logowanie</h2>
-      
+
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
-      
+
       <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="email" className="form-label">Email</label>
@@ -43,7 +70,7 @@ const Login: React.FC = () => {
             className="form-input"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="password" className="form-label">Hasło</label>
           <input
@@ -57,10 +84,10 @@ const Login: React.FC = () => {
             className="form-input"
           />
         </div>
-        
+
         <button type="submit" className="btn-submit">Zaloguj się</button>
       </form>
-      
+
       <p className="redirect-signup">
         Chcesz założyć konto? <a href="/register">Zarejestruj się</a>
       </p>
