@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { setAuth } from "../Auth/Auth";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -32,17 +33,26 @@ const Login: React.FC = () => {
     });
 
     const message = response.data.message?.toLowerCase();
+    const mess = response.data;
 
     if (
       message?.includes("zalogowano") &&
       response.data.token
+      /*    &&
+         response.data.role  */                                          //jak będą role działać
     ) {
+      console.log(mess);
       setSuccess(response.data.message);
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard"); 
+      setAuth(
+        response.data.token, 
+        "teacher" // tymczasowo, dopóki backend nie zwraca roli
+      );                         
+
+      navigate("/"); // przekierowanie na AppLayout
     } else {
       setError(response.data.message || "Błąd logowania.");
     }
+
   } catch (err: any) {
     setError(err.response?.data?.error || "Wystąpił błąd podczas logowania.");
   }

@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import App from '../App';
 import Login from '../Components/Login';
 import Register from '../Components/Register';
 import AppLayout from '../Components/AppLayout';
@@ -11,9 +10,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={<RequireAuth isAuthenticated={isAuthenticated} />}>
+      <Route path="/" element={<RequireAuth />}>
         <Route index element={<AppLayout />} />
-        {/* <Route path="settings" element={<Settings />} /> */}
       </Route>
     </Routes>
   );
