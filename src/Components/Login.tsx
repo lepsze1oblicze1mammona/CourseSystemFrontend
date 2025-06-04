@@ -45,7 +45,8 @@ const Login: React.FC = () => {
       setSuccess(response.data.message);
       setAuth(
         response.data.token, 
-        "teacher" // tymczasowo, dopóki backend nie zwraca roli
+        "teacher", // tymczasowo, dopóki backend nie zwraca roli
+        "1"       // tymczasowo, dopóki backend nie zwraca id
       );                         
 
       navigate("/"); // przekierowanie na AppLayout
