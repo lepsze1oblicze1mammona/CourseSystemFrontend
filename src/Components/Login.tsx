@@ -20,7 +20,7 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setError(null);
   setSuccess(null);
@@ -32,32 +32,24 @@ const Login: React.FC = () => {
       }
     });
 
-    const message = response.data.message?.toLowerCase();
-    const mess = response.data;
+    const { token, role, user_id } = response.data;
 
-    if (
-      message?.includes("zalogowano") &&
-      response.data.token
-      /*    &&
-         response.data.role  */                                          //jak będą role działać
-    ) {
-      console.log(mess);
-      setSuccess(response.data.message);
-      setAuth(
-        response.data.token, 
-        "teacher", // tymczasowo, dopóki backend nie zwraca roli
-        "1"       // tymczasowo, dopóki backend nie zwraca id
-      );                         
+    if (token && role && user_id) {
+      console.log("Login OK:", response.data);
+      setSuccess("Zalogowano pomyślnie");
 
-      navigate("/"); // przekierowanie na AppLayout
+      setAuth(token, role, user_id);
+      localStorage.setItem("email", formData.email);
+      navigate("/");
     } else {
-      setError(response.data.message || "Błąd logowania.");
+      setError("Błędna odpowiedź serwera.");
     }
 
   } catch (err: any) {
     setError(err.response?.data?.error || "Wystąpił błąd podczas logowania.");
   }
 };
+
 
 
   return (

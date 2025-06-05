@@ -14,6 +14,9 @@ export function getRole(): string | null {
   return localStorage.getItem('role');
 }
 
+export function getEmail(): string | null {
+  return localStorage.getItem("email");
+}
 export function getId(): string | null {
   return localStorage.getItem('id');
 }

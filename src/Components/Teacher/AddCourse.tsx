@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import axios from "axios";
 
 // Typy kontekstu, jeśli chcesz odświeżać listę kursów lokalnie
 interface Course {
@@ -20,31 +21,52 @@ const AddCourse: React.FC = () => {
   const id = localStorage.getItem("id");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage(null);
+  e.preventDefault();
+  setMessage(null);
 
-    if (!courseName.trim()) {
-      setMessage("Podaj nazwę kursu.");
-      return;
-    }
+  if (!courseName.trim()) {
+    setMessage("Podaj nazwę kursu.");
+    return;
+  }
 
-    // Przykład lokalnego dodania kursu (do podmiany na zapytanie do backendu)
-    // Po podpięciu backendu, wyślij POST na /api/courses 
-    try {
-      //wysyłka do backendu
+  const token = localStorage.getItem("token");
+  const wlasciciel_login = localStorage.getItem("email");
 
-      // Tymczasowo lokalnie:
-      const newCourse: Course = {
-        id: Math.max(0, ...courses.map(c => c.id)) + 1,
-        name: courseName,
-      };
-      setCourses([...courses, newCourse]);
-      setMessage("Kurs dodany!");
-      setCourseName("");
-    } catch (err) {
-      setMessage("Błąd podczas dodawania kursu.");
-    }
-  };
+  if (!token || !wlasciciel_login) {
+    setMessage("Brak autoryzacji lub loginu właściciela.");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "/kurs",
+      {
+        nazwa: courseName,
+        wlasciciel_login: wlasciciel_login
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const newCourse: Course = {
+      id: Math.max(0, ...courses.map((c) => c.id)) + 1,
+      name: courseName
+    };
+
+    setCourses([...courses, newCourse]);
+    setCourseName("");
+    setMessage("Kurs dodany!");
+  } catch (err: any) {
+    console.error(err);
+    setMessage("Błąd podczas dodawania kursu.");
+  }
+};
+
+
 
   return (
     <div style={{ maxWidth: 400 }}>
