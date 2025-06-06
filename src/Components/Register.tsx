@@ -97,6 +97,9 @@ const Register: React.FC = () => {
         )}
         <button type="submit" className="btn-submit">Zarejestruj się</button>
       </form>
+      <p className="redirect-signin">
+        Masz już konto? <a href="/login">Zaloguj się</a>
+      </p>
     </div>
   );
 };

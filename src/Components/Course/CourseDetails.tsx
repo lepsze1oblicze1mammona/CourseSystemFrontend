@@ -2,83 +2,99 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Outlet, useMatch } from 'react-router-dom';
 import CourseSidebar from './CourseSidebar';
 import { clearAuth } from '../../Auth/Auth';
-
-interface Course {
-  id: number;
-  name: string;
-  assignments: Array<{
-    id: number;
-    title: string;
-    description: string;
-    deadline?: string;
-  }>;
-}
-
-
+import { fetchCourse } from '../../services/mockData';
+import { Course } from '../../types/courseTypes';
 
 const CourseDetails: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const match = useMatch("/courses/:courseId");
   const isMain = !!match;
+  const role = localStorage.getItem('role');
 
-  const handleLogout = () => {
-      clearAuth();           // Czyści token, role, id nauczyciela z localStorage
-      navigate("/login");    // Przekierowuje na stronę logowania
-    }
-
-  const moveToCourses = () => {
-    navigate("/teacher")
-  }
-
-
-  // Tymczasowe dane
-  const mockCourses: Course[] = [
-    {
-      id: 1,
-      name: "Matematyka podstawowa",
-      assignments: [
-        {
-          id: 1,
-          title: "Podstawy algebry",
-          description: "Rozwiąż zadania 1-10 ze strony 45",
-          deadline: "2025-06-15"
-        }
-      ]
-    }
-  ];
-
-  useEffect(() => {
-    const selectedCourse = mockCourses.find(c => c.id === Number(courseId));
-    setCourse(selectedCourse || null);
+  useEffect(() => {                                         //dane z pliku /src/services/mockData.ts, typy w /src/types/courseTypes.ts
+    const loadCourse = async () => {
+      try {
+        const data = await fetchCourse(courseId!);
+        setCourse(data);
+      } catch (error) {
+        console.error("Błąd ładowania kursu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadCourse();
   }, [courseId]);
 
-  if (!course) return <div>Ładowanie...</div>;
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/login");
+  };
 
+  const moveToDashboard = () => {
+    navigate(role === 'teacher' ? '/teacher' : '/student');
+  };
 
-
+  if (loading) return <div>Ładowanie kursu...</div>;
+  if (!course) return <div>Kurs nie znaleziony</div>;         //jeśli go nie ma w pliku - potem można usunąć
 
   return (
     <div className="course-details-layout" style={{ display: "flex", minHeight: "80vh" }}>
-      <CourseSidebar />
-      <div style={{ flex: 1, padding: "2rem" }}>
-        <button onClick={handleLogout}>
-          Wyloguj
-        </button>
-        <button onClick={moveToCourses}>
-          Powrót do listy kursów
-        </button>
-        <h2>{course.name}</h2>
-        {!isMain && (
-          <button onClick={() => navigate(`/courses/${courseId}`)}>
-            Powrót do listy zadań
-          </button>
-        )}
-        {/* Tutaj będą się pojawiać podstrony ZAMIAST listy zadań */}
-        <Outlet context={{ course }} />
-      </div>
+      {role === "teacher" ? (
+        <div style={{ display: "flex", width: '100%' }}>
+          <CourseSidebar />
+          <div style={{ flex: 1, padding: "2rem" }}>
+            <button onClick={handleLogout}>Wyloguj</button>
+            <button onClick={moveToDashboard}>Powrót</button>
+            <h2>{course.name}</h2>
+            {!isMain && (
+              <button onClick={() => navigate(`/courses/${courseId}`)}>
+                Powrót do listy zadań
+              </button>
+            )}
+            <Outlet context={{ course }} />
+          </div>
+        </div>
+      ) : role === "student" ? (
+        <div style={{ flex: 1, padding: "2rem" }}>
+          <button onClick={handleLogout}>Wyloguj</button>
+          <button onClick={moveToDashboard}>Powrót</button>
+          <h2>{course.name}</h2>
+          
+          {/* Lista zadań dla studenta */}
+          <div className="assignments-container">
+            {course.assignments.map(assignment => (
+              <div key={assignment.id} className="assignment-card">
+                <h3>{assignment.title}</h3>
+                <p>{assignment.description}</p>
+                <div className="assignment-meta">
+                  {assignment.deadline && (
+                    <span>Termin: {assignment.deadline}</span>
+                  )}
+                  <button
+                    onClick={() => navigate(`submit/${assignment.id}`)}
+                    style={{
+                      alignSelf: 'center',
+                      padding: '0.5rem 1rem',
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 4,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Wyślij rozwiązanie
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
