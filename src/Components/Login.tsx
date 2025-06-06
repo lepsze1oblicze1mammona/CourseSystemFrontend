@@ -40,7 +40,13 @@ const Login: React.FC = () => {
 
       setAuth(token, role, user_id);
       localStorage.setItem("email", formData.email);
-      navigate("/");
+      if (role == "teacher"){
+        navigate("/teacher");
+      }
+      else if (role=="student"){
+        navigate("/student");
+      }
+      
     } else {
       setError("Błędna odpowiedź serwera.");
     }

@@ -39,7 +39,7 @@ const TeacherDashboard: React.FC = () => {
           Accept: "application/json",
         },
       });
-      setCourses(response.data);
+      setCourses(Array.isArray(response.data) ? response.data : []);      //tutaj zmieniłam bo nie było w bazie kursu to zwracało null a nie tablicę
     } catch (error) {
       console.error("Błąd podczas pobierania kursów:", error);
     }
