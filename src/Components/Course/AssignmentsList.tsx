@@ -4,27 +4,26 @@ import AssignmentItem from "./AssignmentItem";
 
 interface Assignment {
   id: number;
-  title: string;
-  description: string;
-  deadline?: string;
+  nazwa: string;
+  opis: string;
+  termin_realizacji?: string;
 }
-interface CourseContext {
-  course: {
-    assignments: Assignment[];
-  };
+
+interface OutletContext {
+  assignments: Assignment[];
 }
 
 const AssignmentsList: React.FC = () => {
-  const { course } = useOutletContext<CourseContext>();
+  const { assignments } = useOutletContext<OutletContext>();
 
   return (
     <div className="assignments-list">
-      {course.assignments.map(assignment => (
+      {assignments.map(assignment => (
         <AssignmentItem
           key={assignment.id}
-          title={assignment.title}
-          description={assignment.description}
-          deadline={assignment.deadline}
+          title={assignment.nazwa}
+          description={assignment.opis}
+          deadline={assignment.termin_realizacji}
         />
       ))}
     </div>

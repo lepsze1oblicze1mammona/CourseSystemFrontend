@@ -13,7 +13,10 @@ const AssignmentItem: React.FC<AssignmentItemProps> = ({
     <div className="assignment-item">
       <h4>{title}</h4>
       <p>{description}</p>
-      {deadline && <small>Termin: {deadline}</small>}
+      {deadline && (
+  <small>Termin: {new Date(deadline).toLocaleDateString("pl-PL")}</small>//polski format
+)}
+
     </div>
   );
 };

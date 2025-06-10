@@ -2,32 +2,53 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Outlet, useMatch } from 'react-router-dom';
 import CourseSidebar from './CourseSidebar';
 import { clearAuth } from '../../Auth/Auth';
-import { fetchCourse } from '../../services/mockData';
-import { Course } from '../../types/courseTypes';
+import axios from 'axios';
+
+interface Assignment {
+  id: number;
+  kurs_id: number;
+  nazwa: string;
+  opis: string;
+  termin_realizacji: string;
+}
 
 const CourseDetails: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const [course, setCourse] = useState<Course | null>(null);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
 
   const match = useMatch("/courses/:courseId");
   const isMain = !!match;
   const role = localStorage.getItem('role');
 
-  useEffect(() => {                                         //dane z pliku /src/services/mockData.ts, typy w /src/types/courseTypes.ts
-    const loadCourse = async () => {
+  useEffect(() => {
+    const loadAssignments = async () => {
       try {
-        const data = await fetchCourse(courseId!);
-        setCourse(data);
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error("Brak tokenu");
+
+        const response = await axios.get('/specialtreatment/tasks', {
+          params: { kurs_id: Number(courseId) },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+
+        setAssignments(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
-        console.error("Błąd ładowania kursu:", error);
+        console.error("Błąd ładowania zadań:", error);
       } finally {
         setLoading(false);
       }
     };
-    
-    loadCourse();
+
+    if (courseId) {
+      loadAssignments();
+    } else {
+      setLoading(false);
+    }
   }, [courseId]);
 
   const handleLogout = () => {
@@ -39,8 +60,8 @@ const CourseDetails: React.FC = () => {
     navigate(role === 'teacher' ? '/teacher' : '/student');
   };
 
-  if (loading) return <div>Ładowanie kursu...</div>;
-  if (!course) return <div>Kurs nie znaleziony</div>;         //jeśli go nie ma w pliku - potem można usunąć
+  if (loading) return <div>Ładowanie zadań...</div>;
+  if (!assignments || assignments.length === 0) return <div>Brak zadań dla tego kursu.</div>;
 
   return (
     <div className="course-details-layout" style={{ display: "flex", minHeight: "80vh" }}>
@@ -50,30 +71,29 @@ const CourseDetails: React.FC = () => {
           <div style={{ flex: 1, padding: "2rem" }}>
             <button onClick={handleLogout}>Wyloguj</button>
             <button onClick={moveToDashboard}>Powrót</button>
-            <h2>{course.name}</h2>
+            <h2>Zadania kursu</h2>
             {!isMain && (
               <button onClick={() => navigate(`/courses/${courseId}`)}>
                 Powrót do listy zadań
               </button>
             )}
-            <Outlet context={{ course }} />
+            <Outlet context={{ assignments }} />
           </div>
         </div>
       ) : role === "student" ? (
         <div style={{ flex: 1, padding: "2rem" }}>
           <button onClick={handleLogout}>Wyloguj</button>
           <button onClick={moveToDashboard}>Powrót</button>
-          <h2>{course.name}</h2>
-          
-          {/* Lista zadań dla studenta */}
+          <h2>Zadania kursu</h2>
+
           <div className="assignments-container">
-            {course.assignments.map(assignment => (
+            {assignments.map(assignment => (
               <div key={assignment.id} className="assignment-card">
-                <h3>{assignment.title}</h3>
-                <p>{assignment.description}</p>
+                <h3>{assignment.nazwa}</h3>
+                <p>{assignment.opis}</p>
                 <div className="assignment-meta">
-                  {assignment.deadline && (
-                    <span>Termin: {assignment.deadline}</span>
+                  {assignment.termin_realizacji && (
+                    <span>Termin: {assignment.termin_realizacji}</span>
                   )}
                   <button
                     onClick={() => navigate(`submit/${assignment.id}`)}
