@@ -4,7 +4,6 @@ import Login from '../Components/Login';
 import Register from '../Components/Register';
 import AppLayout from '../Components/AppLayout';
 import RequireAuth from '../Auth/RequireAuth';
-import CourseDetails from '../Components/Course/CourseDetails';
 import Students from '../Components/Course/Students';
 import AddStudent from '../Components/Course/AddStudent';
 import RemoveStudent from '../Components/Course/RemoveStudent';
@@ -17,6 +16,7 @@ import TeacherDashboard from '../Components/Teacher/TeacherDashboard';
 import AddCourse from '../Components/Teacher/AddCourse';
 import StudentDashboard from '../Components/Student/StudentDashboard';
 import SubmitAssignment from '../Components/Student/SubmitAssignment';
+import CourseDetailsWrapper from '../Components/Course/CourseDetailsWrapper';
 
 function AppRoutes() {
   return (
@@ -27,7 +27,7 @@ function AppRoutes() {
         <Route index element={<AppLayout />} />
         
         {/* Kursy - wspólne wejście */}
-        <Route path="courses/:courseId" element={<CourseDetails />}>
+        <Route path="courses/:courseId" element={<CourseDetailsWrapper />}>
           <Route index element={<AssignmentsList />} />
           
           {/* Tylko nauczyciel */}
