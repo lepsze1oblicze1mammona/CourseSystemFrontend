@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import CourseTile from "../CourseTile";
 import { clearAuth } from "../../Auth/Auth";
-import { Course } from "../../types/courseTypes";
-import { mockCourses } from "../../services/mockData";
+import axios from "axios";
+
+interface Course {
+  id: number;
+  nazwa: string;
+  wlasciciel: number;
+}
 
 const StudentDashboard: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -19,20 +24,37 @@ const StudentDashboard: React.FC = () => {
 
   const isMain = location.pathname === "/student";
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        // Po prostu ustawiamy wszystkie kursy
-        setCourses(mockCourses);
-        setLoading(false);
-      } catch (err) {
-        setError("Błąd ładowania kursów");
-        setLoading(false);
-      }
-    };
+  const fetchCourses = useCallback(async () => {
+    const email = localStorage.getItem("email"); // upewnij się, że klucz to 'email'
+    const token = localStorage.getItem("token");
 
-    fetchCourses();
+    if (!email || !token) {
+      setError("Brak tokenu lub loginu");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/specialtreatment/studentcourses`, {
+        params: { login: email },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      setCourses(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      setError("Błąd ładowania kursów");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   if (loading) return <div>Ładowanie kursów...</div>;
   if (error) return <div>{error}</div>;
@@ -54,35 +76,36 @@ const StudentDashboard: React.FC = () => {
                 marginBottom: "32px",
               }}
             >
-              {courses.map((course) => (
-                <CourseTile
-                  key={course.id}
-                  courseName={course.name}
-                  onClick={() => navigate(`/courses/${course.id}`)}
-                />
-              ))}
-              {courses.length === 0 && <p>Brak kursów</p>}
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <CourseTile
+                    key={course.id}
+                    courseName={course.nazwa}
+                    onClick={() => navigate(`/courses/${course.id}`)}
+                  />
+                ))
+              ) : (
+                <p>Brak kursów</p>
+              )}
             </div>
           </>
         )}
 
         {!isMain && (
-          <>
-            <button
-              onClick={() => navigate("/student")}
-              style={{
-                marginBottom: "2rem",
-                padding: "0.5rem 1.2rem",
-                background: "#1976d2",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Powrót do listy kursów
-            </button>
-          </>
+          <button
+            onClick={() => navigate("/student")}
+            style={{
+              marginBottom: "2rem",
+              padding: "0.5rem 1.2rem",
+              background: "#1976d2",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Powrót do listy kursów
+          </button>
         )}
       </div>
     </div>
