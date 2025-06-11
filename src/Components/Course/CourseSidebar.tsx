@@ -7,6 +7,7 @@ const menuItems = [
   { to: "remove-student", label: "Usuń ucznia" },
   { to: "add-assignment", label: "Dodaj zadanie" },
   { to: "remove-assignment", label: "Usuń zadanie" },
+  { to: "reschedule-assignment", label: "Zmień datę zadania" }
 ];
 
 const CourseSidebar: React.FC = () => {

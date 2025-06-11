@@ -48,7 +48,7 @@ const Login: React.FC = () => {
       }
       
     } else {
-      setError("Błędna odpowiedź serwera.");
+      setError("Nie znaleziono użytkownika");
     }
 
   } catch (err: any) {
