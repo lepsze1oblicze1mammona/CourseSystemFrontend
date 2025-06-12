@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const SubmitAssignment: React.FC = () => {
   const { courseId, assignmentId } = useParams<{ courseId: string; assignmentId: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Dane przekazywane przez nawigację lub puste stringi jako fallback
+  const { courseName = '', assignmentName = '' } = location.state || {};
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [studentLogin, setStudentLogin] = useState<string>('');
 
-  // Czyszczenie URL przy zmianie pliku lub odmontowaniu komponentu
+  // Pobieranie loginu studenta z localStorage przy starcie
+  useEffect(() => {
+    const login = localStorage.getItem('email');
+    if (login) setStudentLogin(login);
+  }, []);
+
+  // Generowanie URL do podglądu PDF
   useEffect(() => {
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
       setFileUrl(url);
+
       return () => {
         URL.revokeObjectURL(url);
       };
@@ -34,12 +48,53 @@ const SubmitAssignment: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) return;
-    // wysyłka na backend
-    alert('Plik poprawny, gotowy do wysłania!');
-    navigate(`/courses/${courseId}`);
+
+    // Walidacja
+    if (!selectedFile) {
+      setError('Proszę wybrać plik PDF.');
+      return;
+    }
+
+    const missingFields: string[] = [];
+    if (!studentLogin) missingFields.push('login studenta');
+    if (!courseName) missingFields.push('nazwa kursu');
+    if (!assignmentName) missingFields.push('nazwa zadania');
+
+    if (missingFields.length > 0) {
+      setError(`Brak wymaganych danych: ${missingFields.join(', ')}.`);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Brak tokenu autoryzacji. Proszę się zalogować.');
+        return;
+      }
+
+      // Przygotowanie FormData zgodnie z backendem
+      const formData = new FormData();
+      formData.append('student_login', studentLogin);
+      formData.append('nazwa_kursu', courseName);
+      formData.append('nazwa_zadania', assignmentName);
+      formData.append('plik', selectedFile);
+
+      // Wysyłka POST do backendu
+      await axios.post('/zadanie/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert('Plik został pomyślnie wysłany!');
+      navigate(`/courses/${courseId}`);
+    } catch (err) {
+      console.error('Błąd wysyłania pliku:', err);
+      setError('Wystąpił błąd podczas wysyłania pliku.');
+    }
   };
 
   return (
@@ -47,12 +102,7 @@ const SubmitAssignment: React.FC = () => {
       <h2>Wyślij rozwiązanie</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ margin: '1rem 0' }}>
-          <input
-            id="file-upload"
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-          />
+          <input id="file-upload" type="file" accept=".pdf" onChange={handleFileChange} />
         </div>
 
         {selectedFile && (
@@ -67,7 +117,6 @@ const SubmitAssignment: React.FC = () => {
           </div>
         )}
 
-        {/* Opcjonalny podgląd PDF */}
         {fileUrl && (
           <div style={{ marginBottom: '1rem' }}>
             <iframe
@@ -89,7 +138,7 @@ const SubmitAssignment: React.FC = () => {
               color: 'white',
               border: 'none',
               borderRadius: 4,
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             Wyślij
@@ -106,10 +155,10 @@ const SubmitAssignment: React.FC = () => {
             color: 'white',
             border: 'none',
             borderRadius: 4,
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
-          Wróc do listy zadań
+          Wróć do listy zadań
         </button>
       </form>
     </div>
