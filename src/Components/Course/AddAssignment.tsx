@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const AddAssignment: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -7,8 +8,9 @@ const AddAssignment: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim() || !description.trim() || !deadline) {
@@ -16,13 +18,34 @@ const AddAssignment: React.FC = () => {
       return;
     }
 
-    alert(
-      `Dodano zadanie:\n\nNazwa: ${name}\nOpis: ${description}\nData oddania: ${deadline}\nID kursu: ${courseId}`
-    );
+    try {
+      const token = localStorage.getItem('token');
 
-    setName('');
-    setDescription('');
-    setDeadline('');
+      const response = await axios.post(
+        '/zadanie',
+        {
+          kurs_id: Number(courseId),
+          nazwa_zadania: name,
+          opis: description,
+          termin: deadline
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      setMessage(response.data.output || 'Zadanie zostało dodane.');
+      setName('');
+      setDescription('');
+      setDeadline('');
+    } catch (error: any) {
+      console.error('Błąd podczas dodawania zadania:', error);
+      const errorMsg = error.response?.data?.error || 'Wystąpił błąd podczas dodawania zadania.';
+      setMessage(errorMsg);
+    }
   };
 
   return (
@@ -79,6 +102,11 @@ const AddAssignment: React.FC = () => {
           Dodaj zadanie
         </button>
       </form>
+      {message && (
+        <div style={{ marginTop: 16, color: message.includes('błąd') ? '#dc3545' : '#4CAF50' }}>
+          {message}
+        </div>
+      )}
     </div>
   );
 };

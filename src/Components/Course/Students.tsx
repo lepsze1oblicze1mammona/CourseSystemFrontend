@@ -17,13 +17,35 @@ const Students: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStudents = async () => {};           //axios
+    const fetchStudents = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    if (courseId) fetchStudents();
+        const response = await axios.get("/specialtreatment/allstudents", {
+          params: { kurs_id: Number(courseId) },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setStudents(response.data || []);
+        setError(null);
+      } catch (err: any) {
+        console.error("Błąd podczas pobierania uczniów:", err);
+        const msg = err.response?.data?.error || "Nie udało się pobrać listy uczniów.";
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (courseId) {
+      fetchStudents();
+    }
   }, [courseId]);
 
   if (loading) return <div>Ładowanie uczniów...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
 
   return (
     <div>

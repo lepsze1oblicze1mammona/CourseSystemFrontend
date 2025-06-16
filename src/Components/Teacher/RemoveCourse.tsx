@@ -14,13 +14,13 @@ interface ContextType {
 
 const RemoveCourse: React.FC = () => {
   const { courses, setCourses } = useOutletContext<ContextType>();
-  const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const [selectedCourse, setSelectedCourse] = useState<number | "">("");
   const [message, setMessage] = useState<string | null>(null);
 
   const handleRemove = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedCourse) {
+    if (selectedCourse === "") {
       setMessage("Wybierz kurs do usunięcia.");
       return;
     }
@@ -33,14 +33,13 @@ const RemoveCourse: React.FC = () => {
           "Content-Type": "application/json"
         },
         data: {
-          nazwa: selectedCourse
+          kurs_id: selectedCourse
         }
       });
 
       setMessage(response.data.output);
 
-      // Aktualizacja listy kursów
-      const updatedCourses = courses.filter(course => course.nazwa !== selectedCourse);
+      const updatedCourses = courses.filter(course => course.id !== selectedCourse);
       setCourses(updatedCourses);
       setSelectedCourse("");
 
@@ -59,7 +58,7 @@ const RemoveCourse: React.FC = () => {
           Wybierz kurs do usunięcia:
           <select
             value={selectedCourse}
-            onChange={e => setSelectedCourse(e.target.value)}
+            onChange={e => setSelectedCourse(Number(e.target.value))}
             required
             style={{ width: "100%", padding: 8, marginTop: 4 }}
           >
@@ -68,7 +67,7 @@ const RemoveCourse: React.FC = () => {
               <option disabled>Brak kursów</option>
             ) : (
               courses.map(course => (
-                <option key={course.id} value={course.nazwa}>
+                <option key={course.id} value={course.id}>
                   {course.nazwa}
                 </option>
               ))

@@ -14,7 +14,7 @@ interface ContextType {
 
 const RenameCourse: React.FC = () => {
   const { courses, setCourses } = useOutletContext<ContextType>();
-  const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const [selectedCourse, setSelectedCourse] = useState<number | "">("");
   const [newName, setNewName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ const RenameCourse: React.FC = () => {
     e.preventDefault();
     setMessage(null);
 
-    if (!selectedCourse || !newName.trim()) {
+    if (selectedCourse === "" || !newName.trim()) {
       setMessage("Wypełnij wszystkie pola.");
       return;
     }
@@ -33,7 +33,7 @@ const RenameCourse: React.FC = () => {
       const response = await axios.put(
         "/kurs",
         {
-          stara_nazwa: selectedCourse,
+          kurs_id: selectedCourse,
           nowa_nazwa: newName
         },
         {
@@ -46,13 +46,11 @@ const RenameCourse: React.FC = () => {
 
       setMessage(response.data.output || "Nazwa kursu została zmieniona.");
 
-      // Aktualizacja lokalnej listy kursów
       const updatedCourses = courses.map(course =>
-        course.nazwa === selectedCourse ? { ...course, nazwa: newName } : course
+        course.id === selectedCourse ? { ...course, nazwa: newName } : course
       );
       setCourses(updatedCourses);
 
-      // Wyczyść pola
       setSelectedCourse("");
       setNewName("");
 
@@ -71,7 +69,7 @@ const RenameCourse: React.FC = () => {
           Wybierz kurs:
           <select
             value={selectedCourse}
-            onChange={e => setSelectedCourse(e.target.value)}
+            onChange={e => setSelectedCourse(Number(e.target.value))}
             required
             style={{ width: "100%", padding: 8, marginTop: 4 }}
           >
@@ -80,7 +78,7 @@ const RenameCourse: React.FC = () => {
               <option disabled>Brak kursów</option>
             ) : (
               courses.map(course => (
-                <option key={course.id} value={course.nazwa}>
+                <option key={course.id} value={course.id}>
                   {course.nazwa}
                 </option>
               ))
