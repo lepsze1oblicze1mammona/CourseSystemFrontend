@@ -21,13 +21,16 @@ const AddAssignment: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
 
+      // Format daty do UTC
+      const formattedDeadline = new Date(deadline).toISOString();
+
       const response = await axios.post(
         '/zadanie',
         {
           kurs_id: Number(courseId),
           nazwa_zadania: name,
           opis: description,
-          termin: deadline
+          termin: formattedDeadline // wysyłamy sformatowaną datę
         },
         {
           headers: {
@@ -77,9 +80,9 @@ const AddAssignment: React.FC = () => {
         </div>
         <div style={{ marginBottom: 16 }}>
           <label>
-            Data oddania:<br />
+            Data i godzina oddania:<br />
             <input
-              type="date"
+              type="datetime-local"
               value={deadline}
               onChange={e => setDeadline(e.target.value)}
               style={{ width: '100%', padding: 8 }}
@@ -87,6 +90,7 @@ const AddAssignment: React.FC = () => {
             />
           </label>
         </div>
+        
         <button
           type="submit"
           style={{

@@ -155,7 +155,7 @@ const SubmitAssignment: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => navigate(`/courses/${courseId}`)}
+          onClick={() => navigate(`/sc/${courseId}`)}
           style={{
             marginLeft: '1rem',
             padding: '0.5rem 1rem',

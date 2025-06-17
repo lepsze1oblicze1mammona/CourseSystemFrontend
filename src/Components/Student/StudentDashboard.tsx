@@ -25,7 +25,7 @@ const StudentDashboard: React.FC = () => {
   const isMain = location.pathname === "/student";
 
   const fetchCourses = useCallback(async () => {
-    const email = localStorage.getItem("email"); // upewnij się, że klucz to 'email'
+    const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
 
     if (!email || !token) {
@@ -81,7 +81,7 @@ const StudentDashboard: React.FC = () => {
                   <CourseTile
                     key={course.id}
                     courseName={course.nazwa}
-                    onClick={() => navigate(`/courses/${course.id}`)}
+                    onClick={() => navigate(`/sc/${course.id}`)}
                   />
                 ))
               ) : (
