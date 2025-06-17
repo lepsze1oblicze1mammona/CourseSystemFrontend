@@ -5,9 +5,7 @@ const menuItems = [
   { to: "students", label: "Uczniowie" },
   { to: "add-student", label: "Dodaj ucznia" },
   { to: "remove-student", label: "Usuń ucznia" },
-  { to: "add-assignment", label: "Dodaj zadanie" },
-  { to: "remove-assignment", label: "Usuń zadanie" },
-  { to: "reschedule-assignment", label: "Zmień datę zadania" }
+  { to: "add-assignment", label: "Dodaj zadanie" }
 ];
 
 const CourseSidebar: React.FC = () => {
@@ -19,7 +17,7 @@ const CourseSidebar: React.FC = () => {
         {menuItems.map(item => (
           <li key={item.to}>
             <NavLink
-              to={`/courses/${courseId}/${item.to}`}
+              to={`/tc/${courseId}/${item.to}`}
               className={({ isActive }) => isActive ? "active" : ""}
             >
               {item.label}

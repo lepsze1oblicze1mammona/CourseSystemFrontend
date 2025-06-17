@@ -11,12 +11,14 @@ import RenameCourse from '../Components/Teacher/RenameCourse';
 import RemoveCourse from '../Components/Teacher/RemoveCourse';
 import AddAssignment from '../Components/Course/AddAssignment';
 import RemoveAssignment from '../Components/Course/RemoveAssignment';
-import AssignmentsList from '../Components/Course/AssignmentsList';
 import TeacherDashboard from '../Components/Teacher/TeacherDashboard';
 import AddCourse from '../Components/Teacher/AddCourse';
 import StudentDashboard from '../Components/Student/StudentDashboard';
 import SubmitAssignment from '../Components/Student/SubmitAssignment';
-import CourseDetailsWrapper from '../Components/Course/CourseDetailsWrapper';
+import CourseDetailsTeacher from '../Components/Teacher/CourseDetailsTeacher';
+import CourseDetailsStudent from '../Components/Student/CourseDetailsStudent';
+import AssignmentDetails from '../Components/Teacher/AssignmentDetails';
+import RescheduleAssignment from '../Components/Course/RescheduleAssignment';
 
 function AppRoutes() {
   return (
@@ -25,20 +27,6 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/" element={<RequireAuth />}>
         <Route index element={<AppLayout />} />
-        
-        {/* Kursy - wspólne wejście */}
-        <Route path="courses/:courseId" element={<CourseDetailsWrapper />}>
-          <Route index element={<AssignmentsList />} />
-          
-          {/* Tylko nauczyciel */}
-          <Route element={<RequireRole allowedRoles={["teacher"]} />}>
-            <Route path="students" element={<Students />} />
-            <Route path="add-student" element={<AddStudent />} />
-            <Route path="remove-student" element={<RemoveStudent />} />
-            <Route path="add-assignment" element={<AddAssignment />} />
-            <Route path="remove-assignment" element={<RemoveAssignment />} />
-          </Route>
-        </Route>
 
         {/* Panel nauczyciela */}
         <Route element={<RequireRole allowedRoles={["teacher"]} />}>
@@ -47,12 +35,24 @@ function AppRoutes() {
             <Route path="remove-course" element={<RemoveCourse />} />
             <Route path="rename-course" element={<RenameCourse />} />
           </Route>
+          <Route path="tc/:courseId" element={<CourseDetailsTeacher />}>
+            <Route path="students" element={<Students />} />
+            <Route path="add-student" element={<AddStudent />} />
+            <Route path="remove-student" element={<RemoveStudent />} />
+            <Route path="add-assignment" element={<AddAssignment />} />
+            <Route path="assignments/:assignmentId" element={<AssignmentDetails />}>
+              <Route path="remove" element={<RemoveAssignment />} />
+              <Route path="reschedule" element={<RescheduleAssignment />} />
+            </Route>
+          </Route>
         </Route>
 
         {/* Panel ucznia */}
         <Route element={<RequireRole allowedRoles={["student"]} />}>
           <Route path="student" element={<StudentDashboard />} />
-          <Route path="courses/:courseId/submit/:assignmentId" element={<SubmitAssignment />} />
+          <Route path="sc/:courseId" element={<CourseDetailsStudent />}>
+            <Route path="submit/:assignmentId" element={<SubmitAssignment />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

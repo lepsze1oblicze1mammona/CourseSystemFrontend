@@ -72,7 +72,7 @@ const TeacherDashboard: React.FC = () => {
                 <CourseTile
                   key={course.id}
                   courseName={course.nazwa}
-                  onClick={() => navigate(`/courses/${course.id}`)}
+                  onClick={() => navigate(`/tc/${course.id}`)}
                 />
               ))}
             </div>
