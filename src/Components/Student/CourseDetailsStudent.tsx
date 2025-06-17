@@ -78,20 +78,24 @@ const CourseDetailsStudent: React.FC = () => {
                   </span>
                 )}
 
-                <button
-                  onClick={() => navigate(`submit/${assignment.id}`)}
-                  style={{
-                    alignSelf: 'center',
-                    padding: '0.5rem 1rem',
-                    background: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 4,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Wyślij rozwiązanie
-                </button>
+               <button
+  onClick={() => navigate(`submit/${assignment.id}`, {
+    state: {
+      assignmentName: assignment.nazwa,
+    },
+  })}
+  style={{
+    alignSelf: 'center',
+    padding: '0.5rem 1rem',
+    background: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: 4,
+    cursor: 'pointer'
+  }}
+>
+  Wyślij rozwiązanie
+</button>
               </div>
             </div>
           ))

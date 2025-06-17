@@ -7,21 +7,19 @@ const SubmitAssignment: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Dane przekazywane przez nawigację lub puste stringi jako fallback
-  const { courseName = '', assignmentName = '' } = location.state || {};
+  
+  const { assignmentName = '' } = location.state || {};
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [studentLogin, setStudentLogin] = useState<string>('');
 
-  // Pobieranie loginu studenta z localStorage przy starcie
   useEffect(() => {
     const login = localStorage.getItem('email');
     if (login) setStudentLogin(login);
   }, []);
 
-  // Generowanie URL do podglądu PDF
   useEffect(() => {
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
@@ -51,7 +49,6 @@ const SubmitAssignment: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Walidacja
     if (!selectedFile) {
       setError('Proszę wybrać plik PDF.');
       return;
@@ -59,11 +56,17 @@ const SubmitAssignment: React.FC = () => {
 
     const missingFields: string[] = [];
     if (!studentLogin) missingFields.push('login studenta');
-    if (!courseName) missingFields.push('nazwa kursu');
+    if (!courseId) missingFields.push('ID kursu');
     if (!assignmentName) missingFields.push('nazwa zadania');
 
     if (missingFields.length > 0) {
       setError(`Brak wymaganych danych: ${missingFields.join(', ')}.`);
+      return;
+    }
+
+    const courseIdInt = Number(courseId);
+    if (isNaN(courseIdInt)) {
+      setError('ID kursu jest nieprawidłowe.');
       return;
     }
 
@@ -74,14 +77,12 @@ const SubmitAssignment: React.FC = () => {
         return;
       }
 
-      // Przygotowanie FormData zgodnie z backendem
       const formData = new FormData();
       formData.append('student_login', studentLogin);
-      formData.append('nazwa_kursu', courseName);
+      formData.append('kurs_id', courseIdInt.toString());
       formData.append('nazwa_zadania', assignmentName);
       formData.append('plik', selectedFile);
 
-      // Wysyłka POST do backendu
       await axios.post('/zadanie/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -100,6 +101,13 @@ const SubmitAssignment: React.FC = () => {
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '2rem' }}>
       <h2>Wyślij rozwiązanie</h2>
+
+      {!assignmentName && (
+        <div style={{ marginBottom: '1rem', color: 'red' }}>
+          Nie podano nazwy zadania. Proszę wrócić do listy zadań i spróbować ponownie.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div style={{ margin: '1rem 0' }}>
           <input id="file-upload" type="file" accept=".pdf" onChange={handleFileChange} />
@@ -129,7 +137,7 @@ const SubmitAssignment: React.FC = () => {
           </div>
         )}
 
-        {selectedFile && (
+        {selectedFile && assignmentName && (
           <button
             type="submit"
             style={{
