@@ -69,6 +69,11 @@ const SubmitAssignment: React.FC = () => {
       setError('ID kursu jest nieprawidłowe.');
       return;
     }
+    const assignmentIdInt = Number(assignmentId);
+    if (isNaN(assignmentIdInt)) {
+      setError('ID zadania jest nieprawidłowe.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -80,7 +85,7 @@ const SubmitAssignment: React.FC = () => {
       const formData = new FormData();
       formData.append('student_login', studentLogin);
       formData.append('kurs_id', courseIdInt.toString());
-      formData.append('nazwa_zadania', assignmentName);
+      formData.append('zadanie_id', assignmentIdInt.toString());
       formData.append('plik', selectedFile);
 
       await axios.post('/zadanie/upload', formData, {
@@ -91,7 +96,7 @@ const SubmitAssignment: React.FC = () => {
       });
 
       alert('Plik został pomyślnie wysłany!');
-      navigate(`/courses/${courseId}`);
+      navigate(`/sc/${courseId}`);
     } catch (err) {
       console.error('Błąd wysyłania pliku:', err);
       setError('Wystąpił błąd podczas wysyłania pliku.');

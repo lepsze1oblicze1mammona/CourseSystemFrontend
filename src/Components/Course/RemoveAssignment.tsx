@@ -19,8 +19,37 @@ const RemoveAssignment: React.FC = () => {
 
   const handleDelete = async () => {
     if (!window.confirm(`Czy na pewno chcesz usunąć zadanie "${assignment.nazwa}"?`)) return;
-    
-    
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Brak tokenu autoryzacji. Proszę się zalogować.');
+        setLoading(false);
+        return;
+      }
+
+      await axios.delete('/zadanie', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          kurs_id: Number(courseId),
+          zadanie_id: Number(assignmentId)
+        }
+      });
+
+      alert('Zadanie zostało usunięte.');
+      navigate(`/tc/${courseId}`);
+    } catch (err) {
+      console.error('Błąd podczas usuwania zadania:', err);
+      setError('Wystąpił błąd podczas usuwania zadania.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -13,15 +13,16 @@ const RescheduleAssignment: React.FC = () => {
   const navigate = useNavigate();
   const { assignment } = useOutletContext<{ assignment: Assignment }>();
 
-  // Inicjalizacja wartościami obecnej daty/godziny zadania
   const [date, setDate] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
     return d.toISOString().slice(0, 10); // yyyy-mm-dd
   });
+
   const [time, setTime] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
     return d.toTimeString().slice(0, 5); // hh:mm
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,17 +30,23 @@ const RescheduleAssignment: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    // Połącz datę i godzinę w format ISO
     const newDateTime = `${date}T${time}:00`;
-
     setLoading(true);
+
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Brak tokenu autoryzacji.');
+        setLoading(false);
+        return;
+      }
+
       await axios.put(
-        `/specialtreatment/task/${assignmentId}/reschedule`,
+        '/zadanie',
         {
-          kurs_id: courseId,
-          termin_realizacji: newDateTime,
+          kurs_id: Number(courseId),
+          zadanie_id: Number(assignmentId),
+          nowy_termin: newDateTime,
         },
         {
           headers: {
@@ -48,6 +55,7 @@ const RescheduleAssignment: React.FC = () => {
           },
         }
       );
+
       navigate(`/tc/${courseId}/assignments/${assignmentId}`, {
         state: { success: 'Termin zadania został zmieniony.' },
       });

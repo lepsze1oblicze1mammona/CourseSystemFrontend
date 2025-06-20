@@ -21,7 +21,7 @@ const Students: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const response = await axios.get("/specialtreatment/allstudents", {
+        const response = await axios.get("/specialtreatment/kursstudents", {
           params: { kurs_id: Number(courseId) },
           headers: {
             Authorization: `Bearer ${token}`,

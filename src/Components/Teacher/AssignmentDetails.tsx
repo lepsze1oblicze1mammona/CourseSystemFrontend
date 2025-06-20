@@ -66,12 +66,11 @@ const AssignmentDetails: React.FC = () => {
     }
   }, [assignment, assignmentId]);
 
-  // Pobierz studentów do kursu
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("/specialtreatment/allstudents", {
+        const response = await axios.get("/specialtreatment/kursstudents", {
           params: { kurs_id: Number(courseId) },
           headers: {
             Authorization: `Bearer ${token}`,
