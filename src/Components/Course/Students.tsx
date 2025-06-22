@@ -28,7 +28,9 @@ const Students: React.FC = () => {
           },
         });
 
-        setStudents(response.data || []);
+        
+        const fetchedStudents = Array.isArray(response.data) ? response.data : [];
+        setStudents(fetchedStudents);
         setError(null);
       } catch (err: any) {
         console.error("Błąd podczas pobierania uczniów:", err);

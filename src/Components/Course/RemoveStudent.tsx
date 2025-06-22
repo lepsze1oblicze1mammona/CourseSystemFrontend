@@ -28,11 +28,14 @@ const RemoveStudent = () => {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get<Student[]>('/specialtreatment/kursstudents', {
+        const response = await axios.get('/specialtreatment/kursstudents', {
           params: { kurs_id: Number(courseId) },
           headers: { Authorization: `Bearer ${token}` }
         });
-        setStudents(response.data);
+
+        // Upewniamy się, że dane to tablica
+        const fetchedStudents = Array.isArray(response.data) ? response.data : [];
+        setStudents(fetchedStudents);
       } catch (err: any) {
         const msg = err.response?.data?.error || 'Błąd podczas pobierania listy uczniów.';
         setError(msg);
@@ -103,43 +106,47 @@ const RemoveStudent = () => {
       </div>
 
       <div className="students-list">
-        {sortedStudents.map(student => (
-          <div
-            key={student.id}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '12px',
-              margin: '8px 0',
-              border: '2px solid #ddd',
-              borderRadius: '4px',
-              backgroundColor: 'white',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 500 }}>
-                {student.nazwisko} {student.imie}
-              </div>
-              <div>Klasa: {student.klasa}</div>
-              <div style={{ color: '#666' }}>{student.email}</div>
-            </div>
-            <button
-              onClick={() => handleDeleteStudent(student.email)}
+        {students.length === 0 ? (
+          <div>Brak uczniów zapisanych do tego kursu.</div>
+        ) : (
+          sortedStudents.map(student => (
+            <div
+              key={student.id}
               style={{
-                background: '#ff4444',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px',
+                margin: '8px 0',
+                border: '2px solid #ddd',
                 borderRadius: '4px',
-                cursor: 'pointer',
-                marginLeft: '16px',
+                backgroundColor: 'white',
               }}
             >
-              Usuń
-            </button>
-          </div>
-        ))}
+              <div>
+                <div style={{ fontWeight: 500 }}>
+                  {student.nazwisko} {student.imie}
+                </div>
+                <div>Klasa: {student.klasa}</div>
+                <div style={{ color: '#666' }}>{student.email}</div>
+              </div>
+              <button
+                onClick={() => handleDeleteStudent(student.email)}
+                style={{
+                  background: '#ff4444',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginLeft: '16px',
+                }}
+              >
+                Usuń
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
