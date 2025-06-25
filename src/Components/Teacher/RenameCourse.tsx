@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
+import "../../Style/RenameCourse.css";
 
 interface Course {
   id: number;
@@ -28,7 +29,7 @@ const RenameCourse: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
 
       const response = await axios.put(
         "/kurs",
@@ -62,16 +63,15 @@ const RenameCourse: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400 }}>
-      <h3>Zmień nazwę kursu</h3>
-      <form onSubmit={handleRename} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div className="rename-course-container">
+      <h3 className="rename-course-title">Zmień nazwę kursu</h3>
+      <form onSubmit={handleRename} className="rename-course-form">
         <label>
           Wybierz kurs:
           <select
             value={selectedCourse}
             onChange={e => setSelectedCourse(Number(e.target.value))}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
           >
             <option value="">-- wybierz kurs --</option>
             {courses.length === 0 ? (
@@ -93,25 +93,25 @@ const RenameCourse: React.FC = () => {
             value={newName}
             onChange={e => setNewName(e.target.value)}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
           />
         </label>
 
-        <button
-          type="submit"
-          style={{
-            background: "#ffc107",
-            color: "#000",
-            border: "none",
-            borderRadius: 4,
-            padding: "8px 16px",
-            cursor: "pointer"
-          }}
-        >
+        <button type="submit" className="rename-course-btn">
           Zmień nazwę
         </button>
       </form>
-      {message && <div style={{ marginTop: 12, color: "#ffc107", whiteSpace: "pre-wrap" }}>{message}</div>}
+      {message && (
+        <div
+          className={
+            "rename-course-message " +
+            (message.includes("zmieniona") || message.includes("pomyślnie") 
+              ? "rename-course-message-success" 
+              : "rename-course-message-error")
+          }
+        >
+          Zmieniono nazwę kursu
+        </div>
+      )}
     </div>
   );
 };

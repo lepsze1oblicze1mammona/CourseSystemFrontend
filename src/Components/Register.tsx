@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../Style/Register.css";
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -40,8 +41,7 @@ const Register: React.FC = () => {
 
     try {
       const response = await axios.post("/register", formData, {
-        headers: { "Content-Type": "application/json","X-Requested-With": "XMLHttpRequest" }
-        
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" }
       });
 
       if (response.status === 200 && response.data.output) {
@@ -58,30 +58,30 @@ const Register: React.FC = () => {
   return (
     <div className="register-container">
       <h2>Rejestracja</h2>
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
+      {error && <div className="register-error-message">{error}</div>}
+      {success && <div className="register-success-message">{success}</div>}
       <form onSubmit={handleSubmit} className="register-form">
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="imie">Imię</label>
           <input type="text" id="imie" name="imie" value={formData.imie} onChange={handleChange} required />
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="nazwisko">Nazwisko</label>
           <input type="text" id="nazwisko" name="nazwisko" value={formData.nazwisko} onChange={handleChange} required />
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="email">Email</label>
           <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="password">Hasło</label>
           <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="confirmPassword">Potwierdź hasło</label>
           <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={handleChange} required />
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label htmlFor="role">Rola</label>
           <select id="role" name="role" value={formData.role} onChange={handleChange} required>
             <option value="">Wybierz rolę</option>
@@ -90,14 +90,14 @@ const Register: React.FC = () => {
           </select>
         </div>
         {formData.role === "student" && (
-          <div className="form-group">
+          <div className="register-form-group">
             <label htmlFor="klasa">Klasa</label>
             <input type="text" id="klasa" name="klasa" value={formData.klasa} onChange={handleChange} required />
           </div>
         )}
-        <button type="submit" className="btn-submit">Zarejestruj się</button>
+        <button type="submit" className="register-btn-submit">Zarejestruj się</button>
       </form>
-      <p className="redirect-signin">
+      <p className="register-redirect-signin">
         Masz już konto? <a href="/login">Zaloguj się</a>
       </p>
     </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink, useParams } from "react-router-dom";
+import "../../Style/CourseSidebar.css";
 
 const menuItems = [
   { to: "students", label: "Uczniowie" },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/SubmitAssignment.css"
 
 const SubmitAssignment: React.FC = () => {
   const { courseId, assignmentId } = useParams<{ courseId: string; assignmentId: string }>();
@@ -16,7 +17,7 @@ const SubmitAssignment: React.FC = () => {
   const [studentLogin, setStudentLogin] = useState<string>('');
 
   useEffect(() => {
-    const login = localStorage.getItem('email');
+    const login = sessionStorage.getItem('email');
     if (login) setStudentLogin(login);
   }, []);
 
@@ -76,7 +77,7 @@ const SubmitAssignment: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError('Brak tokenu autoryzacji. Proszę się zalogować.');
         return;
@@ -104,75 +105,66 @@ const SubmitAssignment: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '2rem' }}>
-      <h2>Wyślij rozwiązanie</h2>
+    <div className="submit-assignment-container">
+      <h2 className="submit-assignment-title">Wyślij rozwiązanie</h2>
 
       {!assignmentName && (
-        <div style={{ marginBottom: '1rem', color: 'red' }}>
+        <div className="missing-assignment-name">
           Nie podano nazwy zadania. Proszę wrócić do listy zadań i spróbować ponownie.
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ margin: '1rem 0' }}>
-          <input id="file-upload" type="file" accept=".pdf" onChange={handleFileChange} />
+      <form onSubmit={handleSubmit} className="submit-assignment-form">
+        <div>
+          <input 
+            id="file-upload" 
+            type="file" 
+            accept=".pdf" 
+            onChange={handleFileChange}
+            className="submit-assignment-file-input"
+          />
         </div>
 
         {selectedFile && (
-          <div style={{ margin: '1rem 0', color: '#1976d2' }}>
+          <div className="file-selected-info">
             Wybrany plik: <b>{selectedFile.name}</b>
           </div>
         )}
 
         {error && (
-          <div style={{ color: '#dc3545', margin: '1rem 0' }}>
+          <div className="submit-assignment-error">
             {error}
           </div>
         )}
 
         {fileUrl && (
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="pdf-preview-container">
             <iframe
               src={fileUrl}
+              className="pdf-preview"
               title="Podgląd PDF"
-              width="100%"
-              height="400px"
-              style={{ border: '1px solid #ccc', borderRadius: 4 }}
             />
           </div>
         )}
 
-        {selectedFile && assignmentName && (
-          <button
-            type="submit"
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#1976d2',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-            }}
-          >
-            Wyślij
-          </button>
-        )}
+        <div className="submit-assignment-btn-group">
+          {selectedFile && assignmentName && (
+            <button
+              type="submit"
+              className="submit-assignment-btn submit-assignment-btn-submit"
+            >
+              Wyślij
+            </button>
+          )}
 
-        <button
-          type="button"
-          onClick={() => navigate(`/sc/${courseId}`)}
-          style={{
-            marginLeft: '1rem',
-            padding: '0.5rem 1rem',
-            background: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
-          Wróć do listy zadań
-        </button>
+          <button
+            type="button"
+            onClick={() => navigate(`/sc/${courseId}`)}
+            className="submit-assignment-btn submit-assignment-btn-back"
+          >
+            Wróć do listy zadań
+          </button>
+        </div>
       </form>
     </div>
   );

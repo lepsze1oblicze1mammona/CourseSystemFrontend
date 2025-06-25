@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../../Style/Students.css";
 
 interface Student {
   id: number;
@@ -12,6 +13,7 @@ interface Student {
 
 const Students: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ const Students: React.FC = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
 
         const response = await axios.get("/specialtreatment/kursstudents", {
           params: { kurs_id: Number(courseId) },
@@ -28,7 +30,6 @@ const Students: React.FC = () => {
           },
         });
 
-        
         const fetchedStudents = Array.isArray(response.data) ? response.data : [];
         setStudents(fetchedStudents);
         setError(null);
@@ -47,15 +48,23 @@ const Students: React.FC = () => {
   }, [courseId]);
 
   if (loading) return <div>Ładowanie uczniów...</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div>
-      <h3>Uczniowie zapisani do kursu</h3>
+    <div className="students-container">
+      <button
+        className="students-back-btn"
+        onClick={() => navigate(`/tc/${courseId}`)}
+      >
+        Powrót do szczegółów kursu
+      </button>
+      
+      <h3 className="students-title">Uczniowie zapisani do kursu</h3>
+      
       {students.length === 0 ? (
-        <div>Brak uczniów zapisanych do tego kursu.</div>
+        <div className="no-students">Brak uczniów zapisanych do tego kursu.</div>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table className="students-table">
           <thead>
             <tr>
               <th>Imię</th>

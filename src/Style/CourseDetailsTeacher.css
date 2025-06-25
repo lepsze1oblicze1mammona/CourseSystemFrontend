@@ -1,0 +1,120 @@
+.course-details-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #02864a;
+  padding: 20px;
+}
+
+.course-details-content {
+  flex: 1;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(2, 134, 74, 0.13);
+  margin-left: 20px;
+}
+
+.course-details-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.course-details-btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.course-details-btn-logout {
+  background: linear-gradient(90deg, #22c55e 60%, #38bdf8 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+}
+
+.course-details-btn-logout:hover {
+  background: linear-gradient(90deg, #15803d 60%, #2563eb 100%);
+}
+
+.course-details-btn-back {
+  background: #fff;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  margin-left: 10px;
+}
+
+.course-details-btn-back:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+.course-details-title {
+  font-size: 1.8rem;
+  color: #3e70db;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.assignments-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.assignment-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.09);
+  border: 1.5px solid #22c55e;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.assignment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.13);
+}
+
+.assignment-title {
+  font-size: 1.3rem;
+  color: #3e70db;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.assignment-description {
+  color: #1e293b;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.assignment-meta {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.assignment-deadline {
+  color: #15803d;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #3e70db;
+  font-size: 1.2rem;
+}
+
+.no-assignments {
+  text-align: center;
+  padding: 2rem;
+  color: #15803d;
+  font-size: 1.1rem;
+}

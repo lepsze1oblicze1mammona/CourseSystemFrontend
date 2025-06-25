@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/RemoveStudent.css";
 
 interface Student {
   id: number;
@@ -14,6 +15,7 @@ type SortKey = 'nazwisko' | 'imie' | 'klasa';
 
 const RemoveStudent = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ const RemoveStudent = () => {
       setError(null);
 
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const response = await axios.get('/specialtreatment/kursstudents', {
           params: { kurs_id: Number(courseId) },
           headers: { Authorization: `Bearer ${token}` }
@@ -62,7 +64,7 @@ const RemoveStudent = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.post('/kurs/remove', {
         kurs_id: Number(courseId),
         student_login: studentEmail,
@@ -79,26 +81,26 @@ const RemoveStudent = () => {
   };
 
   if (loading) return <div>Ładowanie uczniów...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="remove-students-container">
-      <h2>Usuń ucznia z kursu</h2>
+      <button
+        className="remove-students-back-btn"
+        onClick={() => navigate(`/tc/${courseId}`)}
+      >
+        Powrót do szczegółów kursu
+      </button>
+      <h2 className="remove-students-title">Usuń ucznia z kursu</h2>
 
-      <div className="sort-controls" style={{ marginBottom: '1rem' }}>
+      <div className="sort-controls">
         <label>Sortuj według: </label>
         {(['nazwisko', 'imie', 'klasa'] as SortKey[]).map(key => (
           <button
             key={key}
+            className="sort-btn"
             onClick={() => setSortBy(key)}
             disabled={sortBy === key}
-            style={{
-              margin: '0 4px',
-              padding: '4px 8px',
-              backgroundColor: sortBy === key ? '#2196F3' : '#f0f0f0',
-              color: sortBy === key ? 'white' : 'black',
-              cursor: sortBy === key ? 'default' : 'pointer',
-            }}
           >
             {key.charAt(0).toUpperCase() + key.slice(1)}
           </button>
@@ -107,40 +109,18 @@ const RemoveStudent = () => {
 
       <div className="students-list">
         {students.length === 0 ? (
-          <div>Brak uczniów zapisanych do tego kursu.</div>
+          <div className="no-students">Brak uczniów zapisanych do tego kursu.</div>
         ) : (
           sortedStudents.map(student => (
-            <div
-              key={student.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px',
-                margin: '8px 0',
-                border: '2px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: 'white',
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 500 }}>
-                  {student.nazwisko} {student.imie}
-                </div>
-                <div>Klasa: {student.klasa}</div>
-                <div style={{ color: '#666' }}>{student.email}</div>
+            <div key={student.id} className="student-card">
+              <div className="student-info">
+                <div className="student-name">{student.nazwisko} {student.imie}</div>
+                <div className="student-class">Klasa: {student.klasa}</div>
+                <div className="student-email">{student.email}</div>
               </div>
               <button
+                className="remove-student-btn"
                 onClick={() => handleDeleteStudent(student.email)}
-                style={{
-                  background: '#ff4444',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  marginLeft: '16px',
-                }}
               >
                 Usuń
               </button>

@@ -4,6 +4,7 @@ import TeacherSidebar from "./TeacherSidebar";
 import CourseTile from "../CourseTile";
 import { clearAuth } from "../../Auth/Auth";
 import axios from "axios";
+import "../../Style/TeacherDashboard.css";
 
 interface Course {
   id: number;
@@ -23,11 +24,11 @@ const TeacherDashboard: React.FC = () => {
   const isMain = location.pathname === "/teacher";
 
   const fetchCourses = useCallback(async () => {
-    const email = localStorage.getItem("email");
-    const token = localStorage.getItem("token");
+    const email = sessionStorage.getItem("email");
+    const token = sessionStorage.getItem("token");
 
     if (!email || !token) {
-      console.error("Brak tokenu lub emaila w localStorage");
+      console.error("Brak tokenu lub emaila w sessionStorage");
       return;
     }
 
@@ -39,8 +40,7 @@ const TeacherDashboard: React.FC = () => {
           Accept: "application/json",
         },
       });
-      setCourses(Array.isArray(response.data) ? response.data : []);      //tutaj zmieniłam bo nie było w bazie kursu to zwracało null a nie tablicę
-      
+      setCourses(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Błąd podczas pobierania kursów:", error);
     }
@@ -51,23 +51,30 @@ const TeacherDashboard: React.FC = () => {
   }, [fetchCourses]);
 
   return (
-    <div style={{ display: "flex", minHeight: "80vh" }}>
+    <div className="teacher-dashboard-main">
       <TeacherSidebar />
-      <div style={{ flex: 1, padding: "2rem" }}>
-        <h2>Panel nauczyciela</h2>
-        <button onClick={handleLogout}>Wyloguj</button>
+      <div className="teacher-dashboard-content">
+        <div className="teacher-dashboard-header-row">
+          <h2 className="teacher-dashboard-title">Panel nauczyciela</h2>
+          <div className="teacher-dashboard-header-btns">
+            {!isMain && (
+              <button
+                className="teacher-dashboard-btn-back"
+                onClick={() => navigate("/teacher")}
+              >
+                Powrót do listy kursów
+              </button>
+            )}
+            <button className="teacher-dashboard-btn-logout" onClick={handleLogout}>
+              Wyloguj
+            </button>
+          </div>
+        </div>
 
         {isMain && (
           <>
-            <h3>Twoje kursy</h3>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                gap: "24px",
-                marginBottom: "32px",
-              }}
-            >
+            <h3 className="teacher-dashboard-section-title">Twoje kursy</h3>
+            <div className="teacher-dashboard-courses-container">
               {courses.map((course) => (
                 <CourseTile
                   key={course.id}
@@ -80,23 +87,7 @@ const TeacherDashboard: React.FC = () => {
         )}
 
         {!isMain && (
-          <>
-            <button
-              onClick={() => navigate("/teacher")}
-              style={{
-                marginBottom: "2rem",
-                padding: "0.5rem 1.2rem",
-                background: "#1976d2",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Powrót do listy kursów
-            </button>
-            <Outlet context={{ courses, setCourses, refetchCourses: fetchCourses }} />
-          </>
+          <Outlet context={{ courses, setCourses, refetchCourses: fetchCourses }} />
         )}
       </div>
     </div>

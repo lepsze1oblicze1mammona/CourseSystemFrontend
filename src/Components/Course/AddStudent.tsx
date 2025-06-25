@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/AddStudent.css";
 
 interface Student {
   id: number;
@@ -14,6 +15,7 @@ type SortKey = 'surname' | 'name' | 'class';
 
 const AddStudents = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ const AddStudents = () => {
       setError(null);
 
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const response = await axios.get<Student[]>('/specialtreatment/allstudents', {
           params: { kurs_id: Number(courseId) },
           headers: { Authorization: `Bearer ${token}` }
@@ -69,7 +71,7 @@ const AddStudents = () => {
 
     setAdding(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       await axios.post('/kurs/assign', {
         kurs_id: Number(courseId),
         student_login: selectedEmail,
@@ -86,28 +88,30 @@ const AddStudents = () => {
   };
 
   if (loading) return <div>Ładowanie uczniów...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="add-students-container">
-      <h2>Dodaj ucznia do kursu</h2>
+      <button
+        className="add-students-back-btn"
+        onClick={() => navigate(`/tc/${courseId}`)}
+      >
+        Powrót do szczegółów kursu
+      </button>
+      
+      <h2 className="add-students-title">Dodaj ucznia do kursu</h2>
 
-      <div className="sort-controls" style={{ marginBottom: '1rem' }}>
+      <div className="sort-controls">
         <label>Sortuj według: </label>
         {(['surname', 'name', 'class'] as SortKey[]).map(key => (
           <button
             key={key}
+            className="sort-btn"
             onClick={() => setSortBy(key)}
             disabled={sortBy === key}
-            style={{
-              margin: '0 4px',
-              padding: '4px 8px',
-              backgroundColor: sortBy === key ? '#2196F3' : '#f0f0f0',
-              color: sortBy === key ? 'white' : 'black',
-              cursor: sortBy === key ? 'default' : 'pointer',
-            }}
           >
-            {key.charAt(0).toUpperCase() + key.slice(1)}
+            {key === 'surname' ? 'Nazwisko' : 
+            key === 'name' ? 'Imię' : 'Klasa'}
           </button>
         ))}
       </div>
@@ -116,37 +120,21 @@ const AddStudents = () => {
         {sortedStudents.map(student => (
           <div
             key={student.id}
+            className={`student-card ${selectedEmail === student.email ? 'selected' : ''}`}
             onClick={() => handleSelectStudent(student.email)}
-            style={{
-              padding: '12px',
-              margin: '8px 0',
-              border: `2px solid ${selectedEmail === student.email ? '#2196F3' : '#ddd'}`,
-              borderRadius: '4px',
-              cursor: 'pointer',
-              backgroundColor: selectedEmail === student.email ? '#e3f2fd' : 'white',
-              transition: 'all 0.2s ease',
-            }}
           >
-            <div style={{ fontWeight: 500 }}>{student.nazwisko} {student.imie}</div>
-            <div>Klasa: {student.klasa}</div>
-            <div style={{ color: '#666' }}>{student.email}</div>
+            <div className="student-name">{student.nazwisko} {student.imie}</div>
+            <div className="student-class">Klasa: {student.klasa}</div>
+            <div className="student-email">{student.email}</div>
           </div>
         ))}
       </div>
 
-      <div className="course-actions" style={{ marginTop: '24px' }}>
+      <div className="course-actions">
         <button
+          className="add-student-btn"
           onClick={handleAddStudent}
           disabled={adding}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: adding ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-          }}
         >
           {adding ? 'Dodawanie...' : 'Dodaj wybranego ucznia'}
         </button>

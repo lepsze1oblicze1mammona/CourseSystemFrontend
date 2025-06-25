@@ -1,0 +1,84 @@
+.students-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(2, 134, 74, 0.13);
+}
+
+.students-back-btn {
+  padding: 0.6rem 1.5rem;
+  background: #fff;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.students-back-btn:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+.students-title {
+  font-size: 1.8rem;
+  color: #3e70db;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.09);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.students-table th {
+  background: #38bdf8;
+  color: #fff;
+  text-align: left;
+  padding: 1rem;
+  font-weight: 600;
+}
+
+.students-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.students-table tr:nth-child(even) {
+  background: #f4f6fa;
+}
+
+.students-table tr:hover {
+  background: #e2e8f0;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #3e70db;
+  font-size: 1.2rem;
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+  font-size: 1.2rem;
+}
+
+.no-students {
+  text-align: center;
+  padding: 2rem;
+  color: #15803d;
+  font-size: 1.1rem;
+}

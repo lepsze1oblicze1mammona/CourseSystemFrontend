@@ -8,7 +8,7 @@ const menuItems = [
 ];
 
 const TeacherSidebar: React.FC = () => (
-  <nav className="teacher-sidebar">
+  <nav className="teacher-sidebar-top">
     <ul>
       {menuItems.map(item => (
         <li key={item.to}>

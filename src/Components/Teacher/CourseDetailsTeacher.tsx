@@ -3,6 +3,7 @@ import { useParams, useNavigate, Outlet, useMatch } from 'react-router-dom';
 import CourseSidebar from '../Course/CourseSidebar';
 import { clearAuth } from '../../Auth/Auth';
 import axios from 'axios';
+import "../../Style/CourseDetailsTeacher.css";
 
 interface Assignment {
   id: number;
@@ -17,40 +18,43 @@ const CourseDetailsTeacher: React.FC = () => {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMain = !!useMatch("/tc/:courseId");
 
-  const match = useMatch("/tc/:courseId");
-  const isMain = !!match;
+  // Funkcja do pobierania zadań
+  const loadAssignments = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) throw new Error("Brak tokenu");
 
+      const response = await axios.get('/specialtreatment/tasks', {
+        params: { kurs_id: Number(courseId) },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      setAssignments(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Błąd ładowania zadań:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Pobierz zadania przy montowaniu komponentu
   useEffect(() => {
-    const loadAssignments = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error("Brak tokenu");
-
-        const response = await axios.get('/specialtreatment/tasks', {
-          params: { kurs_id: Number(courseId) },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
-
-        setAssignments(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error("Błąd ładowania zadań:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (courseId) {
       loadAssignments();
-    } else {
-      setLoading(false);
     }
   }, [courseId]);
 
-  
+  // Pobierz zadania przy powrocie do głównej ścieżki
+  useEffect(() => {
+    if (isMain) {
+      loadAssignments();
+    }
+  }, [isMain]);
 
   const handleLogout = () => {
     clearAuth();
@@ -61,8 +65,6 @@ const CourseDetailsTeacher: React.FC = () => {
     navigate('/teacher');
   };
 
-  if (loading) return <div>Ładowanie zadań...</div>;
-
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -70,57 +72,57 @@ const CourseDetailsTeacher: React.FC = () => {
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${day}.${month}.${year}, ${hours}:${minutes}`;
-}
+    return `${day}.${month}.${year}, ${hours}:${minutes}`;
+  }
+
+  if (loading) return <div>Ładowanie zadań...</div>;
 
   return (
-  <div className="course-details-layout" style={{ display: "flex", minHeight: "80vh" }}>
-    <div style={{ display: "flex", width: '100%' }}>
+    <div className="course-details-layout">
       <CourseSidebar />
-      <div style={{ flex: 1, padding: "2rem" }}>
-        <button onClick={handleLogout}>Wyloguj</button>
-        <button onClick={moveToDashboard}>Powrót do listy kursów</button>
+      <div className="course-details-content">
+        <div className="course-details-header">
+          <button className="course-details-btn course-details-btn-back" onClick={moveToDashboard}>
+            Powrót do listy kursów
+          </button>
+          <button className="course-details-btn course-details-btn-logout" onClick={handleLogout}>
+            Wyloguj
+          </button>
+        </div>
+        
         {isMain && (
           <>
-            <h2>Zadania kursu</h2>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", margin: "1rem 0" }}>
-              {assignments.length === 0 && (
-                <div>Brak zadań w tym kursie.</div>
+            <h2 className="course-details-title">Zadania kursu</h2>
+            <div className="assignments-container">
+              {assignments.length === 0 ? (
+                <div className="no-assignments">Brak zadań w tym kursie.</div>
+              ) : (
+                assignments.map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="assignment-card"
+                    onClick={() => navigate(`/tc/${courseId}/assignments/${assignment.id}`)}
+                  >
+                    <h3 className="assignment-title">{assignment.nazwa}</h3>
+                    <div className="assignment-meta">
+                      <div className="assignment-deadline">
+                        Termin: {formatDate(assignment.termin_realizacji)}
+                      </div>
+                      <p className="assignment-description">{assignment.opis}</p>
+                    </div>
+                  </div>
+                ))
               )}
-              {assignments.map((assignment) => (
-                <div
-                  key={assignment.id}
-                  style={{
-                    background: "#f5f5f5",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    padding: "1rem",
-                    minWidth: "220px",
-                    maxWidth: "260px",
-                    cursor: "pointer",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-                  }}
-                  onClick={() => navigate(`/tc/${courseId}/assignments/${assignment.id}`)}
-                >
-                  <h3 style={{ margin: "0 0 0.5rem 0" }}>{assignment.nazwa}</h3>
-                  <div style={{ fontSize: "0.95em", marginBottom: "0.5rem", color: "#666" }}>
-                    Termin: {formatDate(assignment.termin_realizacji)}
-                  </div>
-                  <div style={{ fontSize: "0.95em" }}>
-                    {assignment.opis}
-                  </div>
-                </div>
-              ))}
             </div>
           </>
         )}
-          {!isMain && !loading &&  (
-            <Outlet context={{ assignments }} />
-          )}
+        
+        {!isMain && !loading && (
+          <Outlet context={{ assignments }} />
+        )}
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default CourseDetailsTeacher;
