@@ -1,0 +1,84 @@
+.remove-assignment-container {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(2, 134, 74, 0.13);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.remove-assignment-title {
+  font-size: 1.6rem;
+  color: #3e70db;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.remove-assignment-question {
+  color: #15803d;
+  font-size: 1.08rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.remove-assignment-error {
+  color: #ef4444;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  text-align: center;
+}
+
+.remove-assignment-btn-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.remove-assignment-btn-delete {
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.10);
+}
+
+.remove-assignment-btn-delete:disabled {
+  background: #fca5a5;
+  cursor: not-allowed;
+}
+
+.remove-assignment-btn-delete:hover {
+  background: #b91c1c;
+}
+
+.remove-assignment-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.08rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.remove-assignment-btn-cancel:hover {
+  background: #22c55e;
+  color: #fff;
+}

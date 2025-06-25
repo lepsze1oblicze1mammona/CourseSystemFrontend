@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/RescheduleAssignment.css";
 
 interface Assignment {
   id: number;
@@ -34,7 +35,7 @@ const RescheduleAssignment: React.FC = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError('Brak tokenu autoryzacji.');
         setLoading(false);
@@ -67,63 +68,45 @@ const RescheduleAssignment: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <h2>Zmień termin zadania</h2>
-      <div style={{ marginBottom: '1rem' }}>
+    <div className="reschedule-container">
+      <h2 className="reschedule-title">Zmień termin zadania</h2>
+      <div className="assignment-name">
         Zadanie: <strong>{assignment.nazwa}</strong>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Nowa data:
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              required
-              style={{ marginLeft: 8 }}
-            />
-          </label>
+      <form onSubmit={handleSubmit} className="reschedule-form">
+        <div className="form-group">
+          <label>Nowa data:</label>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Nowa godzina:
-            <input
-              type="time"
-              value={time}
-              onChange={e => setTime(e.target.value)}
-              required
-              style={{ marginLeft: 8 }}
-            />
-          </label>
+        <div className="form-group">
+          <label>Nowa godzina:</label>
+          <input
+            type="time"
+            value={time}
+            onChange={e => setTime(e.target.value)}
+            required
+          />
         </div>
-        {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        
+        {error && <div className="reschedule-error">{error}</div>}
+        
+        <div className="button-group">
           <button
             type="submit"
+            className="save-btn"
             disabled={loading}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#1976d2',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-            }}
           >
             {loading ? 'Zapisywanie...' : 'Zapisz nowy termin'}
           </button>
           <button
             type="button"
+            className="cancel-btn"
             onClick={() => navigate(-1)}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-            }}
           >
             Anuluj
           </button>

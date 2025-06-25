@@ -1,0 +1,90 @@
+.add-course-container {
+  max-width: 450px;
+  margin: 40px auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(2, 134, 74, 0.13);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.add-course-title {
+  font-size: 1.5rem;
+  color: #3e70db;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.add-course-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.add-course-form label {
+  font-size: 1rem;
+  color: #15803d;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.add-course-form input[type="text"] {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #22c55e;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #15803d;
+  background: #f4f6fa;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.add-course-form input[type="text"]:focus {
+  outline: none;
+  border-color: #3e70db;
+  background: #fff;
+}
+
+.add-course-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(90deg, #22c55e 60%, #38bdf8 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+}
+
+.add-course-btn:hover {
+  background: linear-gradient(90deg, #15803d 60%, #2563eb 100%);
+  box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.13);
+}
+
+.add-course-message {
+  margin-top: 1.2rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+}
+
+.add-course-message-success {
+  color: #22c55e;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.add-course-message-error {
+  color: #ef4444;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}

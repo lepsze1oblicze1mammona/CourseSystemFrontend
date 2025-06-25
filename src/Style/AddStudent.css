@@ -1,0 +1,152 @@
+.add-students-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(2, 134, 74, 0.13);
+}
+
+.add-students-back-btn {
+  padding: 0.6rem 1.5rem;
+  background: #fff;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.add-students-back-btn:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+.add-students-title {
+  font-size: 1.8rem;
+  color: #3e70db;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.sort-controls label {
+  font-weight: 600;
+  color: #15803d;
+}
+
+.sort-btn {
+  padding: 0.5rem 1rem;
+  background: #e2e8f0;
+  color: #1e293b;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover {
+  background: #cbd5e1;
+}
+
+.sort-btn:disabled {
+  background: #38bdf8;
+  color: #fff;
+  cursor: default;
+}
+
+.students-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.student-card {
+  background: #f4f6fa;
+  border: 1.5px solid #22c55e;
+  border-radius: 12px;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.student-card:hover {
+  background: #e2e8f0;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+}
+
+.student-card.selected {
+  background: #dcfce7;
+  border-color: #3e70db;
+}
+
+.student-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.student-class {
+  color: #15803d;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.student-email {
+  color: #3e70db;
+  font-weight: 500;
+}
+
+.course-actions {
+  text-align: center;
+}
+
+.add-student-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(90deg, #22c55e 60%, #38bdf8 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+}
+
+.add-student-btn:hover {
+  background: linear-gradient(90deg, #15803d 60%, #2563eb 100%);
+  box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.13);
+}
+
+.add-student-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #3e70db;
+  font-size: 1.2rem;
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+  font-size: 1.2rem;
+}

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/AddAssignment.css";
 
 const AddAssignment: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -19,7 +21,7 @@ const AddAssignment: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       // Format daty do UTC
       const formattedDeadline = new Date(deadline).toISOString();
@@ -52,65 +54,49 @@ const AddAssignment: React.FC = () => {
   };
 
   return (
-    <div className="add-assignment-container" style={{ maxWidth: 500, margin: '0 auto' }}>
-      <h2>Dodaj zadanie do kursu</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 16 }}>
-          <label>
-            Nazwa zadania:<br />
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              style={{ width: '100%', padding: 8 }}
-              required
-            />
-          </label>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label>
-            Opis zadania:<br />
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              style={{ width: '100%', padding: 8, minHeight: 80 }}
-              required
-            />
-          </label>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label>
-            Data i godzina oddania:<br />
-            <input
-              type="datetime-local"
-              value={deadline}
-              onChange={e => setDeadline(e.target.value)}
-              style={{ width: '100%', padding: 8 }}
-              required
-            />
-          </label>
+    <div className="add-assignment-container">
+      <button
+        className="add-assignment-back-btn"
+        onClick={() => navigate(`/tc/${courseId}`)}
+      >
+        Powrót do szczegółów kursu
+      </button>
+      <h2 className="add-assignment-title">Dodaj zadanie do kursu</h2>
+      
+      <form onSubmit={handleSubmit} className="add-assignment-form">
+        <div className="form-group">
+          <label>Nazwa zadania:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+          />
         </div>
         
-        <button
-          type="submit"
-          style={{
-            background: '#4CAF50',
-            color: 'white',
-            padding: '10px 24px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
+        <div className="form-group">
+          <label>Opis zadania:</label>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Data i godzina oddania:</label>
+          <input
+            type="datetime-local"
+            value={deadline}
+            onChange={e => setDeadline(e.target.value)}
+            required
+          />
+        </div>
+        
+        <button type="submit" className="add-assignment-btn">
           Dodaj zadanie
         </button>
       </form>
-      {message && (
-        <div style={{ marginTop: 16, color: message.includes('błąd') ? '#dc3545' : '#4CAF50' }}>
-          {message}
-        </div>
-      )}
     </div>
   );
 };

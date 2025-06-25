@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
+import "../../Style/RemoveCourse.css";
 
 interface Course {
   id: number;
@@ -26,7 +27,7 @@ const RemoveCourse: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await axios.delete("/kurs", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,16 +52,15 @@ const RemoveCourse: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400 }}>
-      <h3>Usuń kurs</h3>
-      <form onSubmit={handleRemove} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div className="remove-course-container">
+      <h3 className="remove-course-title">Usuń kurs</h3>
+      <form onSubmit={handleRemove} className="remove-course-form">
         <label>
           Wybierz kurs do usunięcia:
           <select
             value={selectedCourse}
             onChange={e => setSelectedCourse(Number(e.target.value))}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
           >
             <option value="">-- wybierz kurs --</option>
             {courses.length === 0 ? (
@@ -74,21 +74,20 @@ const RemoveCourse: React.FC = () => {
             )}
           </select>
         </label>
-        <button
-          type="submit"
-          style={{
-            background: "#dc3545",
-            color: "#fff",
-            border: "none",
-            borderRadius: 4,
-            padding: "8px 16px",
-            cursor: "pointer"
-          }}
-        >
+        <button type="submit" className="remove-course-btn">
           Usuń kurs
         </button>
       </form>
-      {message && <div style={{ marginTop: 12, color: "#dc3545", whiteSpace: "pre-wrap" }}>{message}</div>}
+      {message && (
+        <div
+          className={
+            "remove-course-message " +
+            (message.includes("pomyślnie") ? "remove-course-message-success" : "remove-course-message-error")
+          }
+        >
+          Kurs został usunięty.
+        </div>
+      )}
     </div>
   );
 };

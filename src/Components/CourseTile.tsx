@@ -4,23 +4,13 @@ import React from "react";
 interface CourseTileProps {
   courseName: string;
   onClick?: () => void;
+  className?: string; // <-- dodajemy obsługę klasy
 }
 
-const CourseTile: React.FC<CourseTileProps> = ({ courseName, onClick }) => {
+const CourseTile: React.FC<CourseTileProps> = ({ courseName, onClick, className }) => {
   return (
-    <div 
-      style={{
-        padding: "20px",
-        borderRadius: "8px",
-        backgroundColor: "#f5f5f5",
-        cursor: "pointer",
-        transition: "transform 0.2s",
-        minHeight: "120px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center"
-      }}
+    <div
+      className={className ? className : "course-tile"}
       onClick={onClick}
     >
       <h3>{courseName}</h3>

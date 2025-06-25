@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
+import "../../Style/AddCourse.css";
 
 interface Course {
   id: number;
@@ -27,8 +28,8 @@ const AddCourse: React.FC = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    const wlasciciel_login = localStorage.getItem("email");
+    const token = sessionStorage.getItem("token");
+    const wlasciciel_login = sessionStorage.getItem("email");
 
     if (!token || !wlasciciel_login) {
       setMessage("Brak autoryzacji lub loginu właściciela.");
@@ -61,35 +62,33 @@ const AddCourse: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400 }}>
-      <h3>Dodaj kurs</h3>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <label>
-          Nazwa kursu:
-          <input
-            type="text"
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
-            required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <button
-          type="submit"
-          style={{
-            background: "#1976d2",
-            color: "#fff",
-            border: "none",
-            borderRadius: 4,
-            padding: "8px 16px",
-            cursor: "pointer",
-          }}
-        >
-          Dodaj kurs
-        </button>
-      </form>
-      {message && <div style={{ marginTop: 12, color: "#1976d2" }}>{message}</div>}
+    <div className="add-course-container">
+  <h3 className="add-course-title">Dodaj kurs</h3>
+  <form onSubmit={handleSubmit} className="add-course-form">
+    <label>
+      Nazwa kursu:
+      <input
+        type="text"
+        value={courseName}
+        onChange={(e) => setCourseName(e.target.value)}
+        required
+      />
+    </label>
+    <button type="submit" className="add-course-btn">
+      Dodaj kurs
+    </button>
+  </form>
+  {message && (
+    <div
+      className={
+        "add-course-message " +
+        (message === "Kurs dodany!" ? "add-course-message-success" : "add-course-message-error")
+      }
+    >
+      {message}
     </div>
+  )}
+</div>
   );
 };
 

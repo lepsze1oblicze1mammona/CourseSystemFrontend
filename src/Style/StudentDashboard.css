@@ -1,0 +1,129 @@
+body {
+  background: #02864a; /* stonowana, ciemniejsza zieleń */
+  color: #f4f6fa;
+}
+
+.student-dash-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(30, 70, 52, 0.13);
+}
+
+.student-dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #22c55e;
+}
+
+.student-dash-title {
+  font-size: 2rem;
+  color: #3e70db;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.student-dash-logout-btn {
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(90deg, #22c55e 60%, #38bdf8 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+}
+
+.student-dash-logout-btn:hover {
+  background: linear-gradient(90deg, #15803d 60%, #2563eb 100%);
+  box-shadow: 0 4px 16px 0 rgba(34, 197, 94, 0.16);
+}
+
+.student-dash-section-title {
+  font-size: 1.6rem;
+  color: #15803d;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.student-dash-courses-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.student-dash-back-btn {
+  padding: 0.6rem 1.5rem;
+  background: #fff;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.student-dash-back-btn:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+.student-dash-loading,
+.student-dash-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #22c55e;
+}
+
+.student-dash-error {
+  color: #ef4444;
+}
+
+.student-dash-no-courses {
+  text-align: center;
+  padding: 2rem;
+  color: #15803d;
+  font-size: 1.1rem;
+}
+
+/* Styl kafelków kursów */
+.course-tile {
+  background: linear-gradient(120deg, #38bdf8 0%, #22c55e 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 1.5rem 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.11);
+  border: none;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s, transform 0.2s;
+  cursor: pointer;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.course-tile:hover {
+  background: linear-gradient(120deg, #2563eb 0%, #22c55e 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.16);
+  transform: translateY(-4px) scale(1.04);
+}
+.course-tile h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

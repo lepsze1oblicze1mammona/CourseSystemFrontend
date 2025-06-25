@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useOutletContext, useNavigate, Outlet, useMatch } from "react-router-dom";
 import axios from "axios";
+import "../../Style/AssignmentDetails.css";
 
 interface Assignment {
   id: number;
@@ -22,14 +23,28 @@ interface OutletContextType {
   assignments: Assignment[];
 }
 
+// Odpowiedzi z backendu na sztywno, zamień na axiosa, dobrze by było gdyby były przekształcone do tej formy
+const studentSubmissions: Record<number, { output: string }> = {
+  3: { output: '{"result": "OK", "time_of_upload": "2025-06-25T12:40:25.917678Z"}' },
+  4: { output: '{"result": "Brak pliku", "time_of_upload": null}' },
+};
+
 function formatDateTime(dateString: string) {
+  if (!dateString) return "";
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = date.getUTCFullYear();
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   return `${day}.${month}.${year}, ${hours}:${minutes}`;
+}
+
+function isOnTime(time_of_upload: string | null, deadline: string): string {
+  if (!time_of_upload) return "—";
+  const uploadDate = new Date(time_of_upload);
+  const deadlineDate = new Date(deadline);
+  return uploadDate <= deadlineDate ? "Tak" : "Nie";
 }
 
 const AssignmentDetails: React.FC = () => {
@@ -53,7 +68,7 @@ const AssignmentDetails: React.FC = () => {
     if (!assignment && assignmentId) {
       const fetchAssignment = async () => {
         try {
-          const token = localStorage.getItem("token");
+          const token = sessionStorage.getItem("token");
           const response = await axios.get(`/specialtreatment/task/${assignmentId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -69,7 +84,7 @@ const AssignmentDetails: React.FC = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const response = await axios.get("/specialtreatment/kursstudents", {
           params: { kurs_id: Number(courseId) },
           headers: {
@@ -92,103 +107,98 @@ const AssignmentDetails: React.FC = () => {
     }
   }, [courseId]);
 
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (!assignment) return <div>Ładowanie zadania...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!assignment) return <div className="loading-message">Ładowanie zadania...</div>;
 
   return (
-    <div style={{ display: "flex" }}>
-      {/* Główna zawartość po lewej */}
-      <div style={{ flex: 1, marginRight: 24 }}>
+    <div className="assignment-details-container">
+      <div className="assignment-details-content">
         {(isRemove || isReschedule) ? (
           <Outlet context={{ assignment }} />
         ) : (
           <>
             <button
+              className="assignment-details-back-btn"
               onClick={() => navigate(`/tc/${courseId}`)}
-              style={{
-                marginBottom: "1rem",
-                padding: "0.5rem 1rem",
-                background: "#1976d2",
-                color: "white",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-              }}
             >
               Powrót do listy zadań
             </button>
 
-            <h2>{assignment.nazwa}</h2>
-            <div style={{ marginBottom: 12 }}>
+            <h2 className="assignment-details-title">{assignment.nazwa}</h2>
+            <div className="assignment-description">
               <b>Opis:</b><br />
               {assignment.opis}
             </div>
-            <div style={{ marginBottom: 24 }}>
+            <div className="assignment-deadline">
               <b>Termin oddania:</b> {formatDateTime(assignment.termin_realizacji)}
             </div>
 
-            <h3>Lista studentów</h3>
+            <h3 className="students-list-title">Lista studentów</h3>
             {loading ? (
-              <div>Ładowanie uczniów...</div>
+              <div className="loading-message">Ładowanie uczniów...</div>
             ) : error ? (
-              <div style={{ color: "red" }}>{error}</div>
+              <div className="error-message">{error}</div>
             ) : students.length === 0 ? (
-              <div>Brak uczniów zapisanych do tego kursu.</div>
+              <div className="no-students">Brak uczniów zapisanych do tego kursu.</div>
             ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table className="assignment-students-table">
                 <thead>
                   <tr>
                     <th>Lp</th>
                     <th>Student</th>
+                    <th>Status</th>
+                    <th>Data oddania</th>
+                    <th>Oddane w terminie</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((student, idx) => (
-                    <tr key={student.id}>
-                      <td style={{ textAlign: "center" }}>{idx + 1}</td>
-                      <td>{student.imie} {student.nazwisko}</td>
-                    </tr>
-                  ))}
+                  {students.map((student, idx) => {
+                    const submission = studentSubmissions[student.id];
+                    let status = "Brak informacji";
+                    let time = "";
+                    let onTime = "—";
+                    if (submission) {
+                      const output = JSON.parse(submission.output);
+                      if (output.result === "OK" && output.time_of_upload) {
+                        status = "Oddane";
+                        time = formatDateTime(output.time_of_upload);
+                        onTime = isOnTime(output.time_of_upload, assignment.termin_realizacji);
+                      } else if (output.result === "Brak pliku") {
+                        status = "Nieoddane";
+                      }
+                    }
+                    return (
+                      <tr key={student.id}>
+                        <td>{idx + 1}</td>
+                        <td>{student.imie} {student.nazwisko}</td>
+                        <td className={
+                          status === "Oddane" ? "status-oddane" : 
+                          status === "Nieoddane" ? "status-nieoddane" : 
+                          "status-unknown"
+                        }>
+                          {status}
+                        </td>
+                        <td>{time}</td>
+                        <td>{onTime}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
           </>
         )}
       </div>
-      {/* Boczne menu po prawej */}
-      <div
-        style={{
-          minWidth: 180,
-          marginLeft: 24,
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          borderLeft: "1px solid #eee",
-          paddingLeft: 16
-        }}
-      >
+      <div className="assignment-actions-sidebar">
+        <h3 className="assignment-actions-title">Akcje zadania</h3>
         <button
-          style={{
-            padding: "0.5rem 1rem",
-            background: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: 4,
-            cursor: "pointer"
-          }}
+          className="assignment-action-btn"
           onClick={() => navigate(`remove`)}
         >
           Usuń zadanie
         </button>
         <button
-          style={{
-            padding: "0.5rem 1rem",
-            background: "#1976d2",
-            color: "white",
-            border: "none",
-            borderRadius: 4,
-            cursor: "pointer"
-          }}
+          className="assignment-action-btn"
           onClick={() => navigate(`reschedule`)}
         >
           Zmień datę zadania

@@ -10,7 +10,7 @@ function AppLayout() {
 
   console.log("Token:", token);
   console.log("Rola:", role);
-
+  
   if (role === "teacher") return <TeacherDashboard />;
   if (role === "student") return <StudentDashboard />;
   return <div>Nieznana rola</div>;

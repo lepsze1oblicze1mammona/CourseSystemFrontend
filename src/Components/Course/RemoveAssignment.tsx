@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import "../../Style/RemoveAssignment.css";
 
 interface Assignment {
   id: number;
@@ -24,7 +25,7 @@ const RemoveAssignment: React.FC = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError('Brak tokenu autoryzacji. Proszę się zalogować.');
         setLoading(false);
@@ -53,40 +54,25 @@ const RemoveAssignment: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto' }}>
-      <h2>Usuwanie zadania</h2>
-      <div style={{ marginBottom: '1rem' }}>
+    <div className="remove-assignment-container">
+      <h2 className="remove-assignment-title">Usuwanie zadania</h2>
+      <div className="remove-assignment-question">
         Czy na pewno chcesz usunąć zadanie <strong>"{assignment.nazwa}"</strong>?
       </div>
 
-      {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="remove-assignment-error">{error}</div>}
 
-      <div style={{ display: 'flex', gap: '1rem' }}>
+      <div className="remove-assignment-btn-group">
         <button
+          className="remove-assignment-btn-delete"
           onClick={handleDelete}
           disabled={loading}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer'
-          }}
         >
           {loading ? 'Usuwanie...' : 'Tak, usuń'}
         </button>
-
         <button
+          className="remove-assignment-btn-cancel"
           onClick={() => navigate(-1)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer'
-          }}
         >
           Anuluj
         </button>
