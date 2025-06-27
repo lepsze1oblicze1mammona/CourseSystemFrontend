@@ -12,14 +12,6 @@ interface Assignment {
   termin_realizacji: string;
 }
 
-// Stała z odpowiedziami backendu dla statusu oddania zadań
-const studentSubmissions: Record<number, { output: string }> = {
-  1: { output: '{"result": "Brak pliku", "time_of_upload": null}' },
-  2: { output: '{"result": "OK", "time_of_upload": "2025-06-27T12:40:25.917678Z"}' },
-  3: { output: '{"result": "OK", "time_of_upload": "2025-06-25T12:40:25.917678Z"}' },
-  4: { output: '{"result": "OK", "time_of_upload": "2025-06-27T12:40:25.917678Z"}' },
-};
-
 // Funkcja formatująca datę (UTC)
 function formatDateTime(dateString: string) {
   if (!dateString) return "";
@@ -57,12 +49,19 @@ const CourseDetailsStudent: React.FC = () => {
   const isMain = useMatch("/sc/:courseId");
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submissions, setSubmissions] = useState<Record<number, any>>({});
+  const [studentLogin, setStudentLogin] = useState<string>("");
+
+  useEffect(() => {
+    const login = sessionStorage.getItem('email');
+    if (login) setStudentLogin(login);
+  }, []);
 
   useEffect(() => {
     const loadAssignments = async () => {
       try {
         const token = sessionStorage.getItem('token');
-        if (!token) throw new Error("Brak tokenu");
+        if (!token || !studentLogin) throw new Error("Brak tokenu lub loginu studenta");
 
         const response = await axios.get('/specialtreatment/tasks', {
           params: { kurs_id: Number(courseId) },
@@ -72,7 +71,40 @@ const CourseDetailsStudent: React.FC = () => {
           },
         });
 
-        setAssignments(Array.isArray(response.data) ? response.data : []);
+        const assignmentsData = Array.isArray(response.data) ? response.data : [];
+        setAssignments(assignmentsData);
+
+        // Pobierz statusy oddania dla każdego zadania
+        const submissionsObj: Record<number, any> = {};
+        await Promise.all(assignmentsData.map(async (assignment: Assignment) => {
+          try {
+            const params = {
+              student_login: studentLogin,
+              kurs_id: assignment.kurs_id,
+              zadanie_id: assignment.id,
+            };
+            const res = await axios.get('/zadanie/check', {
+              params,
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+              },
+            });
+            let parsed = null;
+            if (res.data && typeof res.data.output === "string") {
+              try {
+                parsed = JSON.parse(res.data.output);
+              } catch {
+                parsed = null;
+              }
+            }
+            submissionsObj[assignment.id] = parsed;
+          } catch (e) {
+            submissionsObj[assignment.id] = null;
+          }
+        }));
+        setSubmissions(submissionsObj);
+
       } catch (error) {
         console.error("Błąd ładowania zadań:", error);
       } finally {
@@ -80,12 +112,12 @@ const CourseDetailsStudent: React.FC = () => {
       }
     };
 
-    if (courseId) {
+    if (courseId && studentLogin) {
       loadAssignments();
     } else {
       setLoading(false);
     }
-  }, [courseId]);
+  }, [courseId, studentLogin]);
 
   const handleLogout = () => {
     clearAuth();
@@ -97,14 +129,7 @@ const CourseDetailsStudent: React.FC = () => {
   };
 
   const getSubmissionStatus = (assignmentId: number) => {
-    const submission = studentSubmissions[assignmentId];
-    if (!submission) return null;
-    try {
-      return JSON.parse(submission.output);
-    } catch (e) {
-      console.error("Błąd parsowania odpowiedzi", e);
-      return null;
-    }
+    return submissions[assignmentId] || null;
   };
 
   if (loading) return <div className="loading-message">Ładowanie zadań...</div>;
@@ -113,13 +138,13 @@ const CourseDetailsStudent: React.FC = () => {
     return (
       <div className="course-details-container">
         <div className="course-details-header">
-        <button className="course-details-btn course-details-btn-back" onClick={moveToDashboard}>
-          Powrót
-        </button>
-        <button className="course-details-btn course-details-btn-logout" onClick={handleLogout}>
-          Wyloguj
-        </button>
-      </div>
+          <button className="course-details-btn course-details-btn-back" onClick={moveToDashboard}>
+            Powrót
+          </button>
+          <button className="course-details-btn course-details-btn-logout" onClick={handleLogout}>
+            Wyloguj
+          </button>
+        </div>
         
         <h2 className="course-details-title">Zadania kursu studenta</h2>
         
@@ -129,13 +154,15 @@ const CourseDetailsStudent: React.FC = () => {
           ) : (
             assignments.map(assignment => {
               const submission = getSubmissionStatus(assignment.id);
-              const isSubmitted = submission?.result === "OK" && submission?.time_of_upload;
+
+              // Sprawdź czy jest oddane w terminie lub po terminie
+              const isSubmittedOnTime = submission?.result === "OK" && submission?.time_of_upload;
+              const isSubmittedLate = submission?.result === "Termin przekroczony" && submission?.time_of_check;
 
               return (
                 <div key={assignment.id} className="assignment-card">
                   <h3 className="assignment-title">{assignment.nazwa}</h3>
                   <p className="assignment-description">{assignment.opis}</p>
-                  
                   <div className="assignment-meta">
                     {assignment.termin_realizacji && (
                       <div className="assignment-deadline">
@@ -144,11 +171,19 @@ const CourseDetailsStudent: React.FC = () => {
                     )}
 
                     <div style={{ marginTop: '0.5rem' }}>
-                      {isSubmitted ? (
+                      {isSubmittedOnTime ? (
                         <div className="submission-info">
-                          <b>Zadanie oddane:</b> 
+                          <b>Zadanie oddane:</b>
                           <span className="submission-time"> {formatDateTime(submission.time_of_upload)}</span>
                           {getOnTimeStatus(submission.time_of_upload, assignment.termin_realizacji)}
+                        </div>
+                      ) : isSubmittedLate ? (
+                        <div className="submission-info">
+                          <b>Zadanie oddane po terminie:</b>
+                          <span className="submission-time"> {formatDateTime(submission.time_of_check)}</span>
+                          <span style={{ color: 'red', fontWeight: 500, marginLeft: 8 }}>
+                            Oddane po terminie
+                          </span>
                         </div>
                       ) : (
                         <button

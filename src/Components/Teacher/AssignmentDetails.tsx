@@ -23,12 +23,6 @@ interface OutletContextType {
   assignments: Assignment[];
 }
 
-// Odpowiedzi z backendu na sztywno, zamień na axiosa, dobrze by było gdyby były przekształcone do tej formy
-const studentSubmissions: Record<number, { output: string }> = {
-  3: { output: '{"result": "OK", "time_of_upload": "2025-06-25T12:40:25.917678Z"}' },
-  4: { output: '{"result": "Brak pliku", "time_of_upload": null}' },
-};
-
 function formatDateTime(dateString: string) {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -58,6 +52,7 @@ const AssignmentDetails: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submissions, setSubmissions] = useState<Record<number, any>>({});
 
   // Sprawdź, czy jesteś na podstronie remove lub reschedule
   const isRemove = useMatch("/tc/:courseId/assignments/:assignmentId/remove");
@@ -107,6 +102,44 @@ const AssignmentDetails: React.FC = () => {
     }
   }, [courseId]);
 
+  // Pobierz statusy oddania dla każdego studenta
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      if (!assignment || students.length === 0) return;
+      const token = sessionStorage.getItem("token");
+      const submissionsObj: Record<number, any> = {};
+      await Promise.all(students.map(async (student) => {
+        try {
+          const res = await axios.get('/zadanie/check', {
+            params: {
+              student_login: student.email,
+              kurs_id: assignment.kurs_id,
+              zadanie_id: assignment.id,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          });
+          let parsed = null;
+          if (res.data && typeof res.data.output === "string") {
+            try {
+              parsed = JSON.parse(res.data.output);
+            } catch {
+              parsed = null;
+            }
+          }
+          submissionsObj[student.id] = parsed;
+        } catch (e) {
+          submissionsObj[student.id] = null;
+        }
+      }));
+      setSubmissions(submissionsObj);
+    };
+
+    fetchSubmissions();
+  }, [assignment, students]);
+
   if (error) return <div className="error-message">{error}</div>;
   if (!assignment) return <div className="loading-message">Ładowanie zadania...</div>;
 
@@ -153,18 +186,21 @@ const AssignmentDetails: React.FC = () => {
                 </thead>
                 <tbody>
                   {students.map((student, idx) => {
-                    const submission = studentSubmissions[student.id];
+                    const submission = submissions[student.id];
                     let status = "Brak informacji";
                     let time = "";
                     let onTime = "—";
                     if (submission) {
-                      const output = JSON.parse(submission.output);
-                      if (output.result === "OK" && output.time_of_upload) {
+                      if (submission.result === "OK" && submission.time_of_upload) {
                         status = "Oddane";
-                        time = formatDateTime(output.time_of_upload);
-                        onTime = isOnTime(output.time_of_upload, assignment.termin_realizacji);
-                      } else if (output.result === "Brak pliku") {
+                        time = formatDateTime(submission.time_of_upload);
+                        onTime = isOnTime(submission.time_of_upload, assignment.termin_realizacji);
+                      } else if (submission.result === "Brak pliku") {
                         status = "Nieoddane";
+                      } else if (submission.result === "Termin przekroczony" && submission.time_of_check) {
+                        status = "Oddane";
+                        time = formatDateTime(submission.time_of_check);
+                        onTime = "Nie";
                       }
                     }
                     return (
@@ -172,8 +208,9 @@ const AssignmentDetails: React.FC = () => {
                         <td>{idx + 1}</td>
                         <td>{student.imie} {student.nazwisko}</td>
                         <td className={
-                          status === "Oddane" ? "status-oddane" : 
-                          status === "Nieoddane" ? "status-nieoddane" : 
+                          status === "Oddane" ? "status-oddane" :
+                          status === "Nieoddane" ? "status-nieoddane" :
+                          status === "Oddane po terminie" ? "status-late" :
                           "status-unknown"
                         }>
                           {status}

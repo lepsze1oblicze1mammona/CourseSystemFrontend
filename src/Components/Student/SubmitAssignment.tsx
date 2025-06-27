@@ -97,7 +97,8 @@ const SubmitAssignment: React.FC = () => {
       });
 
       alert('Plik został pomyślnie wysłany!');
-      navigate(`/sc/${courseId}`);
+      navigate(`/sc/${courseId}`, { replace: true });
+      window.location.reload();
     } catch (err) {
       console.error('Błąd wysyłania pliku:', err);
       setError('Wystąpił błąd podczas wysyłania pliku.');

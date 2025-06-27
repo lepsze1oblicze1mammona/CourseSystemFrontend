@@ -16,12 +16,12 @@ const RescheduleAssignment: React.FC = () => {
 
   const [date, setDate] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
-    return d.toISOString().slice(0, 10); // yyyy-mm-dd
+    return d.toISOString().slice(0, 10);
   });
 
   const [time, setTime] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
-    return d.toTimeString().slice(0, 5); // hh:mm
+    return d.toTimeString().slice(0, 5);
   });
 
   const [loading, setLoading] = useState(false);
@@ -57,9 +57,11 @@ const RescheduleAssignment: React.FC = () => {
         }
       );
 
+      // ⬇️ WAŻNE: przekazujemy znacznik czasu do stanu, by odświeżyć dane w AssignmentDetails
       navigate(`/tc/${courseId}/assignments/${assignmentId}`, {
-        state: { success: 'Termin zadania został zmieniony.' },
+        state: { rescheduledAt: new Date().toISOString() },
       });
+
     } catch (err) {
       setError('Nie udało się zmienić terminu. Spróbuj ponownie.');
     } finally {
@@ -92,22 +94,14 @@ const RescheduleAssignment: React.FC = () => {
             required
           />
         </div>
-        
+
         {error && <div className="reschedule-error">{error}</div>}
-        
+
         <div className="button-group">
-          <button
-            type="submit"
-            className="save-btn"
-            disabled={loading}
-          >
+          <button type="submit" className="save-btn" disabled={loading}>
             {loading ? 'Zapisywanie...' : 'Zapisz nowy termin'}
           </button>
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={() => navigate(-1)}
-          >
+          <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>
             Anuluj
           </button>
         </div>
