@@ -16,12 +16,12 @@ const RescheduleAssignment: React.FC = () => {
 
   const [date, setDate] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
-    return d.toISOString().slice(0, 10);
+    return d.toISOString().slice(0, 10); // yyyy-mm-dd
   });
 
   const [time, setTime] = useState(() => {
     const d = new Date(assignment.termin_realizacji);
-    return d.toTimeString().slice(0, 5);
+    return d.toTimeString().slice(0, 5); // hh:mm
   });
 
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,9 @@ const RescheduleAssignment: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    const newDateTime = `${date}T${time}:00`;
+    const combinedDate = new Date(`${date}T${time}:00`);
+    const newDateTime = combinedDate.toISOString();
+
     setLoading(true);
 
     try {
@@ -57,10 +59,14 @@ const RescheduleAssignment: React.FC = () => {
         }
       );
 
-      // ⬇️ WAŻNE: przekazujemy znacznik czasu do stanu, by odświeżyć dane w AssignmentDetails
+      // Przejdź do szczegółów zadania, a potem wymuś odświeżenie strony
       navigate(`/tc/${courseId}/assignments/${assignmentId}`, {
-        state: { rescheduledAt: new Date().toISOString() },
+        replace: true,
+        state: { success: 'Termin zadania został zmieniony.' },
       });
+
+      // Wymuś odświeżenie (dzięki replace nie tworzy nowego wpisu w historii)
+      window.location.reload();
 
     } catch (err) {
       setError('Nie udało się zmienić terminu. Spróbuj ponownie.');
@@ -98,10 +104,18 @@ const RescheduleAssignment: React.FC = () => {
         {error && <div className="reschedule-error">{error}</div>}
 
         <div className="button-group">
-          <button type="submit" className="save-btn" disabled={loading}>
+          <button
+            type="submit"
+            className="save-btn"
+            disabled={loading}
+          >
             {loading ? 'Zapisywanie...' : 'Zapisz nowy termin'}
           </button>
-          <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => navigate(-1)}
+          >
             Anuluj
           </button>
         </div>
